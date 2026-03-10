@@ -117,9 +117,16 @@ tasks.configureEach {
     if (name.startsWith('run')) {
         dependsOn 'compileJava', 'processResources'
         doFirst {
-            copy {
-                from sourceSets.main.output.classesDirs
-                into sourceSets.main.output.resourcesDir
+            def resourcesDir = sourceSets.main.output.resourcesDir
+            sourceSets.main.output.classesDirs.each { classesDir ->
+                // Merge classes into the resources classpath entry so Forge's
+                // ClasspathLocator finds @Mod in the same SecureJar as mods.toml.
+                copy { from classesDir; into resourcesDir }
+                // Wipe .class files from their original directory so the Java
+                // module system doesn't treat build/classes/java/main as a
+                // separate automatic module ('main') that conflicts with the
+                // 'enchantmentshrine' module in build/resources/main.
+                delete fileTree(classesDir).matching { include '**/*.class' }
             }
         }
     }
