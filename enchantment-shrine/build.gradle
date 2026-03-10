@@ -1,0 +1,130 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven { url 'https://repo1.maven.org/maven2/' }
+        maven { url 'https://maven.minecraftforge.net/' }
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:6.0.47'
+    }
+}
+
+plugins {
+    id 'eclipse'
+    id 'idea'
+    id 'maven-publish'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+}
+
+version = '1.0.0'
+group = 'com.example.enchantmentshrine'
+
+base {
+    archivesName = 'enchantmentshrine'
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+minecraft {
+    mappings channel: 'official', version: '1.21.11'
+
+    copyIdeResources = true
+
+    runs {
+        configureEach {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                enchantmentshrine {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        client {
+            property 'forge.enabledGameTestNamespaces', 'enchantmentshrine'
+        }
+
+        server {
+            property 'forge.enabledGameTestNamespaces', 'enchantmentshrine'
+            args '--nogui'
+        }
+
+        data {
+            workingDirectory project.file('run-data')
+            args '--mod', 'enchantmentshrine', '--all',
+                 '--output', file('src/generated/resources/'),
+                 '--existing', file('src/main/resources/')
+        }
+    }
+}
+
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+repositories {
+    mavenCentral()
+    maven { url 'https://repo1.maven.org/maven2/' }
+    maven { url 'https://libraries.minecraft.net/' }
+    maven { url 'https://maven.minecraftforge.net/' }
+}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.21.11-61.0.10'
+}
+
+tasks.named('processResources', ProcessResources).configure {
+    var replaceProperties = [
+        minecraft_version      : '1.21.11',
+        minecraft_version_range: '[1.21.11,1.22)',
+        forge_version          : '61.0.10',
+        forge_version_range    : '[61,)',
+        loader_version_range   : '[61,)',
+        mod_id                 : 'enchantmentshrine',
+        mod_name               : 'Enchantment Shrine',
+        mod_license            : 'MIT',
+        mod_version            : version,
+        mod_authors            : 'YourName',
+        mod_description        : 'Generates enchantment shrine structures in your world.'
+    ]
+    inputs.properties replaceProperties
+
+    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+        expand replaceProperties
+    }
+}
+
+// Forge 61.x (1.21.11) ships with official Mojang names at runtime — disable
+// re-obfuscation so the packaged jar keeps official names instead of SRG names.
+afterEvaluate {
+    tasks.named('reobfJar').configure { enabled = false }
+}
+
+tasks.named('jar', Jar).configure {
+    manifest {
+        attributes([
+            'Specification-Title'     : 'enchantmentshrine',
+            'Specification-Vendor'    : 'enchantmentshrineteam',
+            'Specification-Version'   : '1',
+            'Implementation-Title'    : project.name,
+            'Implementation-Version'  : project.jar.archiveVersion,
+            'Implementation-Vendor'   : 'enchantmentshrineteam',
+            'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
+}
+
+publishing {
+    publications {
+        register('mavenJava', MavenPublication) {
+            artifact jar
+        }
+    }
+    repositories {
+        maven {
+            url "file://${project.projectDir}/mcmodsrepo"
+        }
+    }
+}
