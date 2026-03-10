@@ -86,7 +86,7 @@ tasks.named('processResources', ProcessResources).configure {
         mod_name               : 'Enchantment Shrine',
         mod_license            : 'MIT',
         mod_version            : version,
-        mod_authors            : 'YourName',
+        mod_authors            : 'vietanhrs',
         mod_description        : 'Generates enchantment shrine structures in your world.'
     ]
     inputs.properties replaceProperties

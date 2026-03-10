@@ -30,7 +30,7 @@ public class EnchantmentShrineFeature extends Feature<NoneFeatureConfiguration> 
 
         // origin is the first air block above the surface (from WORLD_SURFACE_WG heightmap).
         // Verify there is solid ground below; skip generation over water / void.
-        if (!level.getBlockState(origin.below()).isSolid()) {
+        if (!level.getBlockState(origin.below()).isFaceSturdy(level, origin.below(), Direction.UP)) {
             return false;
         }
 

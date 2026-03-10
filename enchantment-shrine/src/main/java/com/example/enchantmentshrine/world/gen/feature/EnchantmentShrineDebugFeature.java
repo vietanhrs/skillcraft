@@ -3,6 +3,7 @@ package com.example.enchantmentshrine.world.gen.feature;
 import com.example.enchantmentshrine.ShrineConfig;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
@@ -41,7 +42,7 @@ public class EnchantmentShrineDebugFeature extends EnchantmentShrineFeature {
         }
 
         WorldGenLevel level = context.level();
-        if (!level.getBlockState(origin.below()).isSolid()) return false;
+        if (!level.getBlockState(origin.below()).isFaceSturdy(level, origin.below(), Direction.UP)) return false;
 
         buildShrine(level, context.random(), origin);
         return true;
