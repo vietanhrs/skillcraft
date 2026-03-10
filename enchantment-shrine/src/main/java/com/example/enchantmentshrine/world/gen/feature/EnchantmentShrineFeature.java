@@ -49,7 +49,7 @@ public class EnchantmentShrineFeature extends Feature<NoneFeatureConfiguration> 
     //  y =  4  = lanterns atop pillars
     //  chest at (0, 0, 3) facing north, outside the bookshelf ring
     // -------------------------------------------------------------------------
-    private void buildShrine(WorldGenLevel level, RandomSource random, BlockPos origin) {
+    protected void buildShrine(WorldGenLevel level, RandomSource random, BlockPos origin) {
 
         BlockState stoneBricks = Blocks.STONE_BRICKS.defaultBlockState();
         BlockState bookshelf   = Blocks.BOOKSHELF.defaultBlockState();
@@ -105,7 +105,7 @@ public class EnchantmentShrineFeature extends Feature<NoneFeatureConfiguration> 
         fillChest(level, chestPos);
     }
 
-    private void fillChest(WorldGenLevel level, BlockPos pos) {
+    protected void fillChest(WorldGenLevel level, BlockPos pos) {
         if (level.getBlockEntity(pos) instanceof ChestBlockEntity chest) {
             // Bottles o' Enchanting (XP bottles)
             chest.setItem(0, new ItemStack(Items.EXPERIENCE_BOTTLE, 64));
@@ -119,6 +119,17 @@ public class EnchantmentShrineFeature extends Feature<NoneFeatureConfiguration> 
             chest.setItem(6, new ItemStack(Items.BOOK, 64));
             chest.setItem(7, new ItemStack(Items.BOOK, 64));
             chest.setItem(8, new ItemStack(Items.BOOK, 32));
+            // Full iron tool set
+            chest.setItem(9,  new ItemStack(Items.IRON_SWORD));
+            chest.setItem(10, new ItemStack(Items.IRON_PICKAXE));
+            chest.setItem(11, new ItemStack(Items.IRON_AXE));
+            chest.setItem(12, new ItemStack(Items.IRON_SHOVEL));
+            chest.setItem(13, new ItemStack(Items.IRON_HOE));
+            // Full iron armor set
+            chest.setItem(14, new ItemStack(Items.IRON_HELMET));
+            chest.setItem(15, new ItemStack(Items.IRON_CHESTPLATE));
+            chest.setItem(16, new ItemStack(Items.IRON_LEGGINGS));
+            chest.setItem(17, new ItemStack(Items.IRON_BOOTS));
         }
     }
 }

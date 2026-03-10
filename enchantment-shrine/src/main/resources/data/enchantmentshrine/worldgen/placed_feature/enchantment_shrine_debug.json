@@ -1,9 +1,9 @@
 {
-  "feature": "enchantmentshrine:enchantment_shrine",
+  "feature": "enchantmentshrine:enchantment_shrine_debug",
   "placement": [
     {
-      "type": "minecraft:rarity_filter",
-      "chance": 1000
+      "type": "minecraft:count",
+      "count": 1
     },
     {
       "type": "minecraft:in_square"

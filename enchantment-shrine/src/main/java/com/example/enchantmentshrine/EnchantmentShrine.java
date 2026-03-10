@@ -2,7 +2,9 @@ package com.example.enchantmentshrine;
 
 import com.example.enchantmentshrine.init.ModFeatures;
 import net.minecraftforge.eventbus.api.bus.BusGroup;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig.Type;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 @Mod(EnchantmentShrine.MOD_ID)
@@ -13,5 +15,6 @@ public class EnchantmentShrine {
     public EnchantmentShrine() {
         BusGroup modBus = FMLJavaModLoadingContext.get().getModBusGroup();
         ModFeatures.FEATURES.register(modBus);
+        ModLoadingContext.get().registerConfig(Type.COMMON, ShrineConfig.COMMON_SPEC);
     }
 }

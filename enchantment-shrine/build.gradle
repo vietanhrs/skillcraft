@@ -102,6 +102,29 @@ afterEvaluate {
     tasks.named('reobfJar').configure { enabled = false }
 }
 
+// ---- Forge 61.x dev-run classpath fix ----
+// ClasspathLocator (fmlloader 61.x) discovers mods by finding META-INF/mods.toml
+// on the classloader.  It creates a ModFile scoped to ONLY the directory that
+// contains the mods.toml (build/resources/main).  The javafml language provider
+// then scans that ModFile for @Mod annotations — but all .class files live in
+// build/classes/java/main, so 0 mods are found and the game crashes.
+//
+// Fix: before any run task starts, copy the compiled classes into the resources
+// directory so that Forge finds both mods.toml and the @Mod class in the same
+// classpath entry.  The jar task is unaffected because this copy runs only
+// during the execution phase of run tasks, not during the build task.
+tasks.configureEach {
+    if (name.startsWith('run')) {
+        dependsOn 'compileJava', 'processResources'
+        doFirst {
+            copy {
+                from sourceSets.main.output.classesDirs
+                into sourceSets.main.output.resourcesDir
+            }
+        }
+    }
+}
+
 tasks.named('jar', Jar).configure {
     manifest {
         attributes([
