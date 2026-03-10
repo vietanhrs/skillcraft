@@ -1,0 +1,9 @@
+{
+  "item.skillcraft.mana_potion": "Mana Potion",
+  "item.skillcraft.lightning_book": "Lightning Book",
+  "entity.skillcraft.secret_merchant": "Secret Merchant",
+
+  "item.skillcraft.lightning_book.no_mana": "You need a mana bar to use this!",
+  "item.skillcraft.lightning_book.not_enough_mana": "Not enough mana!",
+  "item.skillcraft.lightning_book.no_target": "No target in range!"
+}

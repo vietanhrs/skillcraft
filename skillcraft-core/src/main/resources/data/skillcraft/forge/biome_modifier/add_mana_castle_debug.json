@@ -1,0 +1,6 @@
+{
+  "type": "forge:add_features",
+  "biomes": "#minecraft:is_overworld",
+  "features": "skillcraft:mana_castle_debug",
+  "step": "surface_structures"
+}
