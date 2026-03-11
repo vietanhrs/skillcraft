@@ -14,6 +14,7 @@ public class ManaHelper {
     private static final String KEY_HAS_MANA = "skillcraft_has_mana";
     private static final String KEY_MANA = "skillcraft_mana";
     private static final String KEY_MAX_MANA = "skillcraft_max_mana";
+    static final String KEY_REGEN_ACC = "skillcraft_regen_acc";
 
     public static boolean hasManaBar(Player player) {
         return player.getPersistentData().getBooleanOr(KEY_HAS_MANA, false);

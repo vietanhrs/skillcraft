@@ -7,6 +7,7 @@ import com.example.skillcraft.init.ModItems;
 import com.example.skillcraft.mana.ManaEvents;
 import com.example.skillcraft.mana.ManaNetwork;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -38,6 +39,7 @@ public class Skillcraft {
         PlayerEvent.PlayerLoggedInEvent.BUS.addListener(ManaEvents::onPlayerLoggedIn);
         PlayerEvent.PlayerRespawnEvent.BUS.addListener(ManaEvents::onPlayerRespawn);
         PlayerEvent.PlayerChangedDimensionEvent.BUS.addListener(ManaEvents::onPlayerChangedDimension);
+        TickEvent.PlayerTickEvent.Post.BUS.addListener(ManaEvents::onPlayerTick);
 
         // Register client-only BUS listeners immediately so they are set up before
         // SelfDestructing events (EntityRenderersEvent, AddGuiOverlayLayersEvent) fire.
