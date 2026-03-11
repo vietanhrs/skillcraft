@@ -16,9 +16,12 @@ import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 
 /**
- * Generates a small open-air market tent with a stationary {@link SecretMerchant}.
+ * Generates a small open-air market tent with a stationary
+ * {@link SecretMerchant}.
  *
- * <p>Layout (all offsets relative to {@code origin}):
+ * <p>
+ * Layout (all offsets relative to {@code origin}):
+ * 
  * <pre>
  *  y = -1  : 5×5 oak-plank floor
  *  y = 0–2 : oak-fence posts at each of the four corners (x=±2, z=±2)
@@ -35,8 +38,8 @@ public class SecretShopFeature extends Feature<NoneFeatureConfiguration> {
 
     @Override
     public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> ctx) {
-        WorldGenLevel level  = ctx.level();
-        BlockPos      origin = ctx.origin();
+        WorldGenLevel level = ctx.level();
+        BlockPos origin = ctx.origin();
 
         if (!level.getBlockState(origin.below()).isFaceSturdy(level, origin.below(), Direction.UP)) {
             return false;
@@ -49,9 +52,9 @@ public class SecretShopFeature extends Feature<NoneFeatureConfiguration> {
     // -------------------------------------------------------------------------
 
     protected void buildShop(WorldGenLevel level, RandomSource random, BlockPos origin) {
-        BlockState planks  = Blocks.OAK_PLANKS.defaultBlockState();
-        BlockState fence   = Blocks.OAK_FENCE.defaultBlockState();
-        BlockState wool    = Blocks.WHITE_WOOL.defaultBlockState();
+        BlockState planks = Blocks.OAK_PLANKS.defaultBlockState();
+        BlockState fence = Blocks.OAK_FENCE.defaultBlockState();
+        BlockState wool = Blocks.WHITE_WOOL.defaultBlockState();
 
         // ---- FLOOR (5×5) ----
         for (int x = -2; x <= 2; x++) {
@@ -61,7 +64,7 @@ public class SecretShopFeature extends Feature<NoneFeatureConfiguration> {
         }
 
         // ---- CORNER FENCE POSTS (y=0..2) ----
-        int[] cs = {-2, 2};
+        int[] cs = { -2, 2 };
         for (int cx : cs) {
             for (int cz : cs) {
                 for (int y = 0; y <= 2; y++) {
@@ -73,11 +76,11 @@ public class SecretShopFeature extends Feature<NoneFeatureConfiguration> {
         // ---- FENCE FRAME at y=3 (perimeter ring connecting posts) ----
         for (int x = -2; x <= 2; x++) {
             setBlock(level, origin.offset(x, 3, -2), fence);
-            setBlock(level, origin.offset(x, 3,  2), fence);
+            setBlock(level, origin.offset(x, 3, 2), fence);
         }
         for (int z = -1; z <= 1; z++) {
             setBlock(level, origin.offset(-2, 3, z), fence);
-            setBlock(level, origin.offset( 2, 3, z), fence);
+            setBlock(level, origin.offset(2, 3, z), fence);
         }
 
         // ---- WOOL ROOF (5×5 at y=4) ----
@@ -92,16 +95,18 @@ public class SecretShopFeature extends Feature<NoneFeatureConfiguration> {
     }
 
     protected void spawnMerchant(WorldGenLevel level, BlockPos origin) {
-        if (!(level instanceof ServerLevelAccessor sla)) return;
+        if (!(level instanceof ServerLevelAccessor sla))
+            return;
 
-        SecretMerchant merchant = ModEntityTypes.SECRET_MERCHANT.get().create(sla.getLevel(), EntitySpawnReason.COMMAND);
-        if (merchant == null) return;
+        SecretMerchant merchant = ModEntityTypes.SECRET_MERCHANT.get().create(sla.getLevel(),
+                EntitySpawnReason.COMMAND);
+        if (merchant == null)
+            return;
 
         merchant.setPos(
                 origin.getX() + 0.5,
                 origin.getY(),
-                origin.getZ() + 0.5
-        );
+                origin.getZ() + 0.5);
         merchant.setPersistenceRequired();
         sla.getLevel().addFreshEntity(merchant);
     }

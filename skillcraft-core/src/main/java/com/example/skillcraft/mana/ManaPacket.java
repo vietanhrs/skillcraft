@@ -1,6 +1,8 @@
 package com.example.skillcraft.mana;
 
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraftforge.event.network.CustomPayloadEvent;
 
 /**
@@ -8,6 +10,9 @@ import net.minecraftforge.event.network.CustomPayloadEvent;
  * Sent on login, respawn, dimension change, and whenever mana changes.
  */
 public record ManaPacket(boolean hasMana, int mana, int maxMana) {
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, ManaPacket> STREAM_CODEC =
+            StreamCodec.of((buf, packet) -> packet.encode(buf), ManaPacket::decode);
 
     public void encode(FriendlyByteBuf buf) {
         buf.writeBoolean(hasMana);
@@ -20,8 +25,7 @@ public record ManaPacket(boolean hasMana, int mana, int maxMana) {
     }
 
     public static void handle(ManaPacket packet, CustomPayloadEvent.Context ctx) {
-        ctx.enqueueWork(() ->
-                ClientManaData.update(packet.hasMana(), packet.mana(), packet.maxMana()));
+        ctx.enqueueWork(() -> ClientManaData.update(packet.hasMana(), packet.mana(), packet.maxMana()));
         ctx.setPacketHandled(true);
     }
 }

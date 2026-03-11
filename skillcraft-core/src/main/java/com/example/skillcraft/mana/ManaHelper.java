@@ -9,10 +9,10 @@ import net.minecraft.world.entity.player.Player;
 public class ManaHelper {
 
     public static final int DEFAULT_MAX_MANA = 100;
-    public static final int LIGHTNING_COST   = 30;
+    public static final int LIGHTNING_COST = 30;
 
     private static final String KEY_HAS_MANA = "skillcraft_has_mana";
-    private static final String KEY_MANA     = "skillcraft_mana";
+    private static final String KEY_MANA = "skillcraft_mana";
     private static final String KEY_MAX_MANA = "skillcraft_max_mana";
 
     public static boolean hasManaBar(Player player) {
@@ -45,12 +45,15 @@ public class ManaHelper {
 
     /**
      * Attempts to drain {@code amount} mana from the player.
+     * 
      * @return true if the player had enough mana and it was deducted.
      */
     public static boolean drainMana(Player player, int amount) {
-        if (!hasManaBar(player)) return false;
+        if (!hasManaBar(player))
+            return false;
         int current = getMana(player);
-        if (current < amount) return false;
+        if (current < amount)
+            return false;
         setMana(player, current - amount);
         return true;
     }

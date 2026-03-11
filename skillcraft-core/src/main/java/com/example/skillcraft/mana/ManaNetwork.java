@@ -4,7 +4,6 @@ import com.example.skillcraft.Skillcraft;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.ChannelBuilder;
-import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.SimpleChannel;
 
@@ -17,11 +16,9 @@ public class ManaNetwork {
             .simpleChannel();
 
     public static void register() {
-        CHANNEL.messageBuilder(ManaPacket.class, NetworkDirection.PLAY_TO_CLIENT)
-                .encoder(ManaPacket::encode)
-                .decoder(ManaPacket::decode)
-                .consumerMainThread(ManaPacket::handle)
-                .add();
+        CHANNEL.play()
+                .clientbound()
+                .addMain(ManaPacket.class, ManaPacket.STREAM_CODEC, ManaPacket::handle);
     }
 
     /** Push the current server-side mana state to the given player's client. */
@@ -30,9 +27,7 @@ public class ManaNetwork {
                 new ManaPacket(
                         ManaHelper.hasManaBar(player),
                         ManaHelper.getMana(player),
-                        ManaHelper.getMaxMana(player)
-                ),
-                PacketDistributor.PLAYER.with(player)
-        );
+                        ManaHelper.getMaxMana(player)),
+                PacketDistributor.PLAYER.with(player));
     }
 }

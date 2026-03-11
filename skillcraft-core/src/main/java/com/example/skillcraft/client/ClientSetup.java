@@ -15,7 +15,10 @@ import net.minecraftforge.client.event.EntityRenderersEvent;
 @OnlyIn(Dist.CLIENT)
 public class ClientSetup {
 
-    /** Entry point called via DistExecutor.safeRunWhenOn — must be a static void method. */
+    /**
+     * Entry point called via DistExecutor.safeRunWhenOn — must be a static void
+     * method.
+     */
     public static void init() {
         EntityRenderersEvent.RegisterRenderers.BUS.addListener(ClientSetup::onRegisterRenderers);
         AddGuiOverlayLayersEvent.BUS.addListener(ManaHud::register);

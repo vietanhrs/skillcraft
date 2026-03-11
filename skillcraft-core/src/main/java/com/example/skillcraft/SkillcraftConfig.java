@@ -16,7 +16,7 @@ public class SkillcraftConfig {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
         DEBUG_SPAWN_NEARBY = builder
                 .comment("Debug: forces a Mana Castle and a Secret Shop to generate near world spawn.",
-                         "Set to true only for in-game testing. Default: false.")
+                        "Set to true only for in-game testing. Default: false.")
                 .define("debugSpawnNearby", false);
         COMMON_SPEC = builder.build();
     }

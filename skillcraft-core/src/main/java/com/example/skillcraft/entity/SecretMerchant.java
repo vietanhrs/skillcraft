@@ -24,11 +24,13 @@ import java.util.Optional;
 /**
  * A stationary wandering-trader-style NPC that sells the Lightning Book.
  *
- * <p>Key differences from a vanilla WanderingTrader:
+ * <p>
+ * Key differences from a vanilla WanderingTrader:
  * <ul>
- *   <li>No movement or wandering AI goals — it stays exactly where it spawned.</li>
- *   <li>Does not despawn naturally (persistence required is set on spawn).</li>
- *   <li>Sells one fixed trade: 63 gold ingots → 1 Lightning Book.</li>
+ * <li>No movement or wandering AI goals — it stays exactly where it
+ * spawned.</li>
+ * <li>Does not despawn naturally (persistence required is set on spawn).</li>
+ * <li>Sells one fixed trade: 63 gold ingots → 1 Lightning Book.</li>
  * </ul>
  */
 public class SecretMerchant extends WanderingTrader {
@@ -60,8 +62,8 @@ public class SecretMerchant extends WanderingTrader {
                 Optional.empty(),
                 new ItemStack(ModItems.LIGHTNING_BOOK.get()),
                 Integer.MAX_VALUE, // unlimited uses
-                0,                 // no XP reward
-                0.0f               // no price fluctuation
+                0, // no XP reward
+                0.0f // no price fluctuation
         ));
     }
 

@@ -20,7 +20,10 @@ import net.minecraft.world.item.ItemStack;
 /**
  * Generates a dark, rook-shaped Mana Castle at the surface.
  *
- * <p>Layout (all y offsets relative to {@code origin}, the first surface-air block):
+ * <p>
+ * Layout (all y offsets relative to {@code origin}, the first surface-air
+ * block):
+ * 
  * <pre>
  *  y = -1 : 9×9 deepslate-brick floor
  *  y = 0..13 : 2-block-thick deepslate-brick walls (hollow 5×5 interior)
@@ -40,8 +43,8 @@ public class ManaCastleFeature extends Feature<NoneFeatureConfiguration> {
 
     @Override
     public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> ctx) {
-        WorldGenLevel level  = ctx.level();
-        BlockPos      origin = ctx.origin();
+        WorldGenLevel level = ctx.level();
+        BlockPos origin = ctx.origin();
 
         if (!level.getBlockState(origin.below()).isFaceSturdy(level, origin.below(), Direction.UP)) {
             return false;
@@ -55,8 +58,8 @@ public class ManaCastleFeature extends Feature<NoneFeatureConfiguration> {
 
     protected void buildCastle(WorldGenLevel level, RandomSource random, BlockPos origin) {
         BlockState deepslate = Blocks.DEEPSLATE_BRICKS.defaultBlockState();
-        BlockState ladder    = Blocks.LADDER.defaultBlockState()
-                                    .setValue(LadderBlock.FACING, Direction.SOUTH);
+        BlockState ladder = Blocks.LADDER.defaultBlockState()
+                .setValue(LadderBlock.FACING, Direction.SOUTH);
 
         // ---- FLOOR (9×9) + downward fill ----
         for (int x = -4; x <= 4; x++) {
@@ -98,7 +101,8 @@ public class ManaCastleFeature extends Feature<NoneFeatureConfiguration> {
         // ---- TOP FLOOR (y=14): 5×5 interior + outer ring ----
         for (int x = -4; x <= 4; x++) {
             for (int z = -4; z <= 4; z++) {
-                if (x == 0 && z == 0) continue; // reserved for chest
+                if (x == 0 && z == 0)
+                    continue; // reserved for chest
                 setBlock(level, origin.offset(x, 14, z), deepslate);
             }
         }
@@ -120,13 +124,13 @@ public class ManaCastleFeature extends Feature<NoneFeatureConfiguration> {
         }
 
         // ---- INTERIOR TORCHES for lighting ----
-        setBlock(level, origin.offset( 0, 5,  2),
+        setBlock(level, origin.offset(0, 5, 2),
                 Blocks.WALL_TORCH.defaultBlockState()
                         .setValue(BlockStateProperties.HORIZONTAL_FACING, Direction.NORTH));
-        setBlock(level, origin.offset(-2, 5,  0),
+        setBlock(level, origin.offset(-2, 5, 0),
                 Blocks.WALL_TORCH.defaultBlockState()
                         .setValue(BlockStateProperties.HORIZONTAL_FACING, Direction.EAST));
-        setBlock(level, origin.offset( 2, 5,  0),
+        setBlock(level, origin.offset(2, 5, 0),
                 Blocks.WALL_TORCH.defaultBlockState()
                         .setValue(BlockStateProperties.HORIZONTAL_FACING, Direction.WEST));
     }

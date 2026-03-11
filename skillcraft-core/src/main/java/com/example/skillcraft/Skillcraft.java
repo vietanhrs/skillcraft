@@ -31,8 +31,8 @@ public class Skillcraft {
         context.registerConfig(Type.COMMON, SkillcraftConfig.COMMON_SPEC);
 
         // Register attributes for custom entities
-        EntityAttributeCreationEvent.BUS.addListener(e ->
-                e.put(ModEntityTypes.SECRET_MERCHANT.get(), net.minecraft.world.entity.Mob.createMobAttributes().build()));
+        EntityAttributeCreationEvent.BUS.addListener(e -> e.put(ModEntityTypes.SECRET_MERCHANT.get(),
+                net.minecraft.world.entity.Mob.createMobAttributes().build()));
 
         // Register game events on their dedicated buses
         PlayerEvent.PlayerLoggedInEvent.BUS.addListener(ManaEvents::onPlayerLoggedIn);

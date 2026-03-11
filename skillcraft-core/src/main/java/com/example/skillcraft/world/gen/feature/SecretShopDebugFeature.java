@@ -22,7 +22,8 @@ public class SecretShopDebugFeature extends SecretShopFeature {
 
     @Override
     public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> ctx) {
-        if (!SkillcraftConfig.DEBUG_SPAWN_NEARBY.get()) return false;
+        if (!SkillcraftConfig.DEBUG_SPAWN_NEARBY.get())
+            return false;
 
         BlockPos origin = ctx.origin();
         int chunkX = origin.getX() >> 4;
