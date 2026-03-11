@@ -13,25 +13,42 @@ A monorepo of Minecraft Forge mods for **1.21.11 / Forge 61.x**.
 
 ```
 skillcraft/
-├── enchantment-shrine/     ← individual mod projects
+├── build.gradle              ← root build file
+├── settings.gradle           ← multi-project Gradle setup
+├── gradlew / gradlew.bat
+├── gradle/wrapper/
+├── enchantment-shrine/       ← mod subproject
 │   ├── build.gradle
-│   ├── settings.gradle
-│   ├── gradlew
 │   └── src/
-└── skillcraft-core/
+└── skillcraft-core/          ← mod subproject
     ├── build.gradle
-    ├── settings.gradle
-    ├── gradlew
     └── src/
 ```
 
-Each mod is a self-contained Gradle project. Build any mod independently:
+The repo is a **Gradle multi-project build**. You can build or run any mod from the root:
 
 ```bash
-cd skillcraft-core
-./gradlew build        # produces build/libs/skillcraft-1.0.0.jar
-./gradlew runClient    # launch dev client
+# Build all mods
+./gradlew build
+
+# Build a specific mod
+./gradlew :enchantment-shrine:build
+./gradlew :skillcraft-core:build
+
+# Launch dev client
+./gradlew :skillcraft-core:runClient
+./gradlew :enchantment-shrine:runClient
 ```
+
+Or build independently from each subproject's directory using its own `gradlew`.
+
+---
+
+## enchantment-shrine
+
+Generates open stone-brick shrines containing an enchanting table surrounded by 15 bookshelves (max level 30), plus a chest stocked with XP bottles, lapis, and books. Spawns in all overworld biomes at ~1 per 32 chunks.
+
+See [enchantment-shrine/README.md](enchantment-shrine/README.md) for full details.
 
 ---
 
