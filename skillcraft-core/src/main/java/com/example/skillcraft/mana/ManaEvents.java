@@ -1,6 +1,9 @@
 package com.example.skillcraft.mana;
 
+import com.example.skillcraft.item.LightningBook;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.event.AnvilUpdateEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 
@@ -52,7 +55,7 @@ public class ManaEvents {
         int level = player.experienceLevel;
         if (level <= 0) return;
 
-        double regenPerTick = REGEN_BASE * Math.pow(level, REGEN_EXPONENT) / 20.0;
+        double regenPerTick = (REGEN_BASE * Math.pow(level, REGEN_EXPONENT) + ManaHelper.getRegenBonus(player)) / 20.0;
 
         float acc = player.getPersistentData().getFloatOr(ManaHelper.KEY_REGEN_ACC, 0f);
         acc += (float) regenPerTick;
@@ -65,5 +68,25 @@ public class ManaEvents {
         }
 
         player.getPersistentData().putFloat(ManaHelper.KEY_REGEN_ACC, acc);
+    }
+
+    /**
+     * Anvil recipe: two Lightning Books of the same level combine into one at level+1.
+     * Level 1 + Level 1 → Level 2 (2 strikes), Level 2 + Level 2 → Level 3 (4 strikes).
+     */
+    public static void onAnvilUpdate(AnvilUpdateEvent event) {
+        ItemStack left = event.getLeft();
+        ItemStack right = event.getRight();
+
+        if (!(left.getItem() instanceof LightningBook) || !(right.getItem() instanceof LightningBook)) return;
+
+        int leftLevel = LightningBook.getLevel(left);
+        int rightLevel = LightningBook.getLevel(right);
+        if (leftLevel != rightLevel || leftLevel >= 3) return;
+
+        int newLevel = leftLevel + 1;
+        event.setOutput(LightningBook.ofLevel(left.getItem(), newLevel));
+        event.setCost(newLevel * 5L);
+        event.setMaterialCost(1);
     }
 }

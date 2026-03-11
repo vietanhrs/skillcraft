@@ -32,6 +32,10 @@ public class ManaPotion extends Item {
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
         if (entity instanceof ServerPlayer player) {
+            if (ManaHelper.hasManaBar(player)) {
+                ManaHelper.increaseMaxMana(player, 50);
+                ManaHelper.addRegenBonus(player, 1f);
+            }
             ManaHelper.giveManaBar(player);
             ManaNetwork.syncMana(player);
         }
