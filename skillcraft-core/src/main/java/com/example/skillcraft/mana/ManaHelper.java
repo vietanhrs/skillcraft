@@ -15,6 +15,7 @@ public class ManaHelper {
     private static final String KEY_MANA = "skillcraft_mana";
     private static final String KEY_MAX_MANA = "skillcraft_max_mana";
     static final String KEY_REGEN_ACC = "skillcraft_regen_acc";
+    static final String KEY_REGEN_BONUS = "skillcraft_regen_bonus";
 
     public static boolean hasManaBar(Player player) {
         return player.getPersistentData().getBooleanOr(KEY_HAS_MANA, false);
@@ -42,6 +43,22 @@ public class ManaHelper {
     public static void setMana(Player player, int value) {
         int clamped = Math.max(0, Math.min(value, getMaxMana(player)));
         player.getPersistentData().putInt(KEY_MANA, clamped);
+    }
+
+    /** Returns permanent mana regen bonus (mana/s) accumulated from extra potions. */
+    public static float getRegenBonus(Player player) {
+        return player.getPersistentData().getFloatOr(KEY_REGEN_BONUS, 0f);
+    }
+
+    /** Adds {@code amount} mana/s to the player's permanent regen bonus. */
+    public static void addRegenBonus(Player player, float amount) {
+        player.getPersistentData().putFloat(KEY_REGEN_BONUS,
+                getRegenBonus(player) + amount);
+    }
+
+    /** Increases the player's max mana without changing current mana. */
+    public static void increaseMaxMana(Player player, int amount) {
+        player.getPersistentData().putInt(KEY_MAX_MANA, getMaxMana(player) + amount);
     }
 
     /**
