@@ -4,6 +4,7 @@ import com.example.specialforces.client.ClientSetup;
 import com.example.specialforces.init.SFFeatures;
 import com.example.specialforces.init.SFItems;
 import com.example.specialforces.network.SFNetwork;
+import net.minecraftforge.client.event.AddGuiOverlayLayersEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -19,7 +20,13 @@ public class SpecialForces {
         SFFeatures.FEATURES.register(bus);
         SFNetwork.register();
 
-        // Client-only: register scope overlay, NV overlay, FOV event, input handler
+        // AddGuiOverlayLayersEvent is SelfDestructing: it fires once during init and
+        // destroys its bus immediately after. Must register via getBus(bus) here in the
+        // constructor — registering inside FMLClientSetupEvent is too late.
+        // Lambda defers ClientSetup class loading until invocation (client only).
+        AddGuiOverlayLayersEvent.getBus(bus).addListener(e -> ClientSetup.registerOverlays(e));
+
+        // Persistent-bus events (FOV, tick, input) are safe to register any time.
         FMLClientSetupEvent.getBus(bus).addListener(e -> ClientSetup.init());
     }
 }

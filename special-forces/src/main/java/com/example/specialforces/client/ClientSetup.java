@@ -16,9 +16,14 @@ import net.minecraftforge.event.TickEvent;
 @OnlyIn(Dist.CLIENT)
 public class ClientSetup {
 
+    /** Called from AddGuiOverlayLayersEvent.getBus(bus) in the mod constructor (SelfDestructing). */
+    public static void registerOverlays(AddGuiOverlayLayersEvent event) {
+        ScopeOverlay.register(event);
+        NvOverlay.register(event);
+    }
+
+    /** Called from FMLClientSetupEvent for persistent-bus events. */
     public static void init() {
-        AddGuiOverlayLayersEvent.BUS.addListener(ScopeOverlay::register);
-        AddGuiOverlayLayersEvent.BUS.addListener(NvOverlay::register);
         ViewportEvent.ComputeFov.BUS.addListener(ClientSetup::onComputeFov);
         TickEvent.ClientTickEvent.Post.BUS.addListener(ClientSetup::onClientTick);
         InputEvent.InteractionKeyMappingTriggered.BUS.addListener(ClientSetup::onInteractionKey);
