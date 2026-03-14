@@ -29,3 +29,6 @@ mods/
 # OS
 .DS_Store
 Thumbs.db
+
+# Decompiled Minecraft sources
+net/
