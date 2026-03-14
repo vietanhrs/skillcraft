@@ -96,11 +96,6 @@ tasks.named('processResources', ProcessResources).configure {
     }
 }
 
-// Forge 61.x (1.21.11) ships with official Mojang names at runtime — disable
-// re-obfuscation so the packaged jar keeps official names instead of SRG names.
-afterEvaluate {
-    tasks.named('reobfJar').configure { enabled = false }
-}
 
 // ---- Forge 61.x dev-run classpath fix ----
 // ClasspathLocator (fmlloader 61.x) discovers mods by finding META-INF/mods.toml

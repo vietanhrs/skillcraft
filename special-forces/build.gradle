@@ -89,9 +89,6 @@ tasks.named('processResources', ProcessResources).configure {
     }
 }
 
-afterEvaluate {
-    tasks.named('reobfJar').configure { enabled = false }
-}
 
 tasks.configureEach {
     if (name.startsWith('run')) {
