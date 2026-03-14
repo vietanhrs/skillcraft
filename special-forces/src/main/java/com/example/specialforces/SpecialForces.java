@@ -3,6 +3,7 @@ package com.example.specialforces;
 import com.example.specialforces.client.ClientSetup;
 import com.example.specialforces.init.SFFeatures;
 import com.example.specialforces.init.SFItems;
+import com.example.specialforces.init.SFSounds;
 import com.example.specialforces.network.SFNetwork;
 import net.minecraftforge.client.event.AddGuiOverlayLayersEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -17,6 +18,7 @@ public class SpecialForces {
     public SpecialForces(FMLJavaModLoadingContext context) {
         var bus = context.getModBusGroup();
         SFItems.ITEMS.register(bus);
+        SFSounds.SOUNDS.register(bus);
         SFFeatures.FEATURES.register(bus);
         SFNetwork.register();
 
