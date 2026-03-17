@@ -2,6 +2,7 @@ package com.example.villageextras;
 
 import com.example.villageextras.event.VillageGenerationHandler;
 import com.example.villageextras.init.ModFeatures;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.level.ChunkEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig.Type;
@@ -20,5 +21,6 @@ public class VillageExtras {
         context.registerConfig(Type.COMMON, VillageExtrasConfig.COMMON_SPEC);
 
         ChunkEvent.Load.BUS.addListener(VillageGenerationHandler::onChunkLoad);
+        TickEvent.ServerTickEvent.Post.BUS.addListener(VillageGenerationHandler::onServerTick);
     }
 }
