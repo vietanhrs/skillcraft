@@ -7,9 +7,4 @@ pluginManagement {
     }
 }
 
-rootProject.name = 'skillcraft-monorepo'
-
-include 'enchantment-shrine'
-include 'skillcraft-core'
-include 'special-forces'
-include 'village-extras'
+rootProject.name = 'villageextras'
