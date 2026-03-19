@@ -40,6 +40,10 @@ public class ManaEvents {
         }
     }
 
+    /** Sync mana to client at most once every this many ticks during regen. */
+    private static final int SYNC_INTERVAL = 10;
+    private static final String KEY_SYNC_TIMER = "skillcraft_sync_timer";
+
     /**
      * Passive mana regeneration: accumulates fractional mana each server tick
      * and flushes whole-number gains to the player's mana pool.
@@ -64,7 +68,14 @@ public class ManaEvents {
             int toAdd = (int) acc;
             acc -= toAdd;
             ManaHelper.setMana(player, current + toAdd);
-            ManaNetwork.syncMana(player);
+
+            // Rate-limit network sync to avoid sending a packet every tick
+            int timer = player.getPersistentData().getIntOr(KEY_SYNC_TIMER, 0) + 1;
+            if (timer >= SYNC_INTERVAL) {
+                ManaNetwork.syncMana(player);
+                timer = 0;
+            }
+            player.getPersistentData().putInt(KEY_SYNC_TIMER, timer);
         }
 
         player.getPersistentData().putFloat(ManaHelper.KEY_REGEN_ACC, acc);

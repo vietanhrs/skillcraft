@@ -29,18 +29,17 @@ public class ClientSetup {
         InputEvent.InteractionKeyMappingTriggered.BUS.addListener(ClientSetup::onInteractionKey);
     }
 
-    // Returns true to cancel vanilla swing when holding sniper
-    private static boolean onInteractionKey(InputEvent.InteractionKeyMappingTriggered event) {
-        if (!event.isAttack() || event.getHand() != InteractionHand.MAIN_HAND) return false;
+    private static void onInteractionKey(InputEvent.InteractionKeyMappingTriggered event) {
+        if (!event.isAttack() || event.getHand() != InteractionHand.MAIN_HAND) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null) return false;
-        if (!(mc.player.getMainHandItem().getItem() instanceof SniperRifle)) return false;
+        if (mc.player == null) return;
+        if (!(mc.player.getMainHandItem().getItem() instanceof SniperRifle)) return;
 
         event.setSwingHand(false); // suppress vanilla swing animation
+        event.setCanceled(true);   // cancel vanilla melee attack
         ScopeState.preShotZoom = ScopeState.zoomLevel; // save zoom to restore after cooldown
         ScopeState.zoomLevel = 0; // immediately reset view to normal when shot fires
         SFNetwork.sendShoot();
-        return true; // cancel vanilla attack
     }
 
     private static void onComputeFov(ViewportEvent.ComputeFov event) {

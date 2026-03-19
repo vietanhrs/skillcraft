@@ -11,14 +11,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 
-import java.util.Random;
-
 public class SFEvents {
 
     private static final float NO_SCOPE_SPREAD = 0.20f;
     private static final float SCOPED_SPREAD = 0.005f;
     private static final float SNIPER_DAMAGE = 50.0f;
-    private static final Random RNG = new Random();
 
     /** Called from SniperShootPacket handler on the server thread. */
     public static void handleSniperShot(ServerPlayer player) {
@@ -50,7 +47,7 @@ public class SFEvents {
             Entity target = ((EntityHitResult) hit).getEntity();
             // Apply spread as miss chance: ~20% no-scope, ~0.5% scoped
             float spread = zoom == 0 ? NO_SCOPE_SPREAD : SCOPED_SPREAD;
-            if (RNG.nextFloat() >= spread) {
+            if (player.getRandom().nextFloat() >= spread) {
                 target.hurt(player.damageSources().playerAttack(player), SNIPER_DAMAGE);
             }
         }

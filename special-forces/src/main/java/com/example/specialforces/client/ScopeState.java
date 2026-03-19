@@ -18,7 +18,7 @@ public class ScopeState {
     public static boolean wasOnCooldown = false;
 
     /** FOV multipliers indexed by zoomLevel. */
-    public static final float[] FOV_MULTIPLIER = { 1.0f, 0.25f, 0.5f }; // 0=normal, 1=x2, 2=x4
+    public static final float[] FOV_MULTIPLIER = { 1.0f, 0.5f, 0.25f }; // 0=normal, 1=x2, 2=x4
 
     private ScopeState() {}
 }

@@ -7,14 +7,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SniperRifle extends Item {
 
     public static final int COOLDOWN_TICKS = 40;
-    public static final Map<UUID, Integer> SERVER_ZOOM = new HashMap<>();
+    public static final Map<UUID, Integer> SERVER_ZOOM = new ConcurrentHashMap<>();
 
     public SniperRifle(Properties properties) {
         super(properties);

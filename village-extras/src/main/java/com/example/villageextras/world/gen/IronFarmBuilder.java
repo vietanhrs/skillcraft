@@ -189,10 +189,8 @@ public class IronFarmBuilder {
                 setBlock(level, origin.offset(x, 0, z), air); // water flows here
             }
             // Center at z=0 is open (golems walk into lava blade below at y=-1)
-            // Need a gap at z=0 so golems fall into lava — use signs to hold water
-            setBlock(level, origin.offset(x, 0, 0),
-                    Blocks.OAK_WALL_SIGN.defaultBlockState()
-                            .setValue(BlockStateProperties.HORIZONTAL_FACING, Direction.NORTH));
+            // Iron bars stop water flow without needing wall support like signs do
+            setBlock(level, origin.offset(x, 0, 0), Blocks.IRON_BARS.defaultBlockState());
 
             // South side: water at z=+4, flows north to z=0
             setBlock(level, origin.offset(x, 0, +4), Blocks.WATER.defaultBlockState());

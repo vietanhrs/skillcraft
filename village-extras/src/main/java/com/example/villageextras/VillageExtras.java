@@ -4,6 +4,7 @@ import com.example.villageextras.event.VillageGenerationHandler;
 import com.example.villageextras.init.ModFeatures;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.level.ChunkEvent;
+import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig.Type;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -22,5 +23,6 @@ public class VillageExtras {
 
         ChunkEvent.Load.BUS.addListener(VillageGenerationHandler::onChunkLoad);
         TickEvent.ServerTickEvent.Post.BUS.addListener(VillageGenerationHandler::onServerTick);
+        ServerStoppedEvent.BUS.addListener(VillageGenerationHandler::onServerStopped);
     }
 }

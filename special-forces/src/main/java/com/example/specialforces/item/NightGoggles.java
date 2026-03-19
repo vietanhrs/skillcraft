@@ -19,6 +19,11 @@ public class NightGoggles extends Item {
     public void inventoryTick(ItemStack stack, ServerLevel level, Entity entity, EquipmentSlot slot) {
         if (!(entity instanceof Player player)) return;
         if (slot != EquipmentSlot.HEAD) return;
-        player.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, 300, 0, false, false));
+        // Only refresh when the effect is absent or about to expire,
+        // avoiding a new MobEffectInstance allocation every tick.
+        MobEffectInstance existing = player.getEffect(MobEffects.NIGHT_VISION);
+        if (existing == null || existing.getDuration() < 60) {
+            player.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, 240, 0, false, false));
+        }
     }
 }

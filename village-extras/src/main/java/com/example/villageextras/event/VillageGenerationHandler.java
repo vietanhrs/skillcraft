@@ -41,11 +41,21 @@ public class VillageGenerationHandler {
     private static final Set<Long> PENDING = new HashSet<>();
 
     /**
+     * Clears static state between server sessions (e.g. singleplayer world switches).
+     */
+    public static void onServerStopped(net.minecraftforge.event.server.ServerStoppedEvent event) {
+        LOADED_CHUNKS.clear();
+        PENDING.clear();
+    }
+
+    /**
      * Collect newly generated chunk positions from the (possibly off-thread)
      * ChunkEvent.Load. No heavy work here — just enqueue the position.
+     * Only queues overworld chunks since villages only generate there.
      */
     public static void onChunkLoad(ChunkEvent.Load event) {
-        if (!(event.getLevel() instanceof ServerLevel)) return;
+        if (!(event.getLevel() instanceof ServerLevel serverLevel)) return;
+        if (serverLevel.dimension() != net.minecraft.world.level.Level.OVERWORLD) return;
         if (!(event.getChunk() instanceof LevelChunk)) return;
         if (!event.isNewChunk()) return;
         LOADED_CHUNKS.add(event.getChunk().getPos());

@@ -4,8 +4,11 @@ import com.example.specialforces.client.ClientSetup;
 import com.example.specialforces.init.SFFeatures;
 import com.example.specialforces.init.SFItems;
 import com.example.specialforces.init.SFSounds;
+import com.example.specialforces.item.SniperRifle;
 import com.example.specialforces.network.SFNetwork;
 import net.minecraftforge.client.event.AddGuiOverlayLayersEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -30,5 +33,10 @@ public class SpecialForces {
 
         // Persistent-bus events (FOV, tick, input) are safe to register any time.
         FMLClientSetupEvent.getBus(bus).addListener(e -> ClientSetup.init());
+
+        // Clean up server-side zoom state to prevent memory leaks
+        PlayerEvent.PlayerLoggedOutEvent.BUS.addListener(e ->
+                SniperRifle.SERVER_ZOOM.remove(e.getEntity().getUUID()));
+        ServerStoppedEvent.BUS.addListener(e -> SniperRifle.SERVER_ZOOM.clear());
     }
 }
