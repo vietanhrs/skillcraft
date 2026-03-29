@@ -47,6 +47,7 @@ public class SpawnChestFeature extends Feature<NoneFeatureConfiguration> {
             chest.setItem(0, new ItemStack(SFItems.SNIPER.get(), 1));
             chest.setItem(1, new ItemStack(SFItems.BULLET.get(), 16));
             chest.setItem(2, new ItemStack(SFItems.NIGHT_GOGGLES.get(), 1));
+            chest.setItem(3, new ItemStack(SFItems.GLOW_STICK.get(), 64));
         }
 
         return true;

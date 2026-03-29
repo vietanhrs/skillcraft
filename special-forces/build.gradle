@@ -90,18 +90,9 @@ tasks.named('processResources', ProcessResources).configure {
 }
 
 
-tasks.configureEach {
-    if (name.startsWith('run')) {
-        dependsOn 'compileJava', 'processResources'
-        doFirst {
-            def resourcesDir = sourceSets.main.output.resourcesDir
-            sourceSets.main.output.classesDirs.each { classesDir ->
-                copy { from classesDir; into resourcesDir }
-                delete fileTree(classesDir).matching { include '**/*.class' }
-            }
-        }
-    }
-}
+// Ensure classes and resources share one output dir so Forge finds @Mod classes
+// next to mods.toml during dev runs.
+sourceSets.main.output.resourcesDir = sourceSets.main.java.classesDirectory.get().asFile
 
 tasks.named('jar', Jar).configure {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE

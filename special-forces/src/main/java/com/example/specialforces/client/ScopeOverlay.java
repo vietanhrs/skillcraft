@@ -57,16 +57,15 @@ public class ScopeOverlay {
             }
         }
 
-        // Crosshair: two lines across the full circle diameter
+        // Crosshair: full-diameter lines, 1 px thick
         int lineColor = 0xCC000000;
-        int lineThick = 1;
-        // Horizontal
-        graphics.fill(cx - r, cy - lineThick, cx + r, cy + lineThick, lineColor);
-        // Vertical
-        graphics.fill(cx - lineThick, cy - r, cx + lineThick, cy + r, lineColor);
+        // Horizontal (1 px tall, full diameter)
+        graphics.fill(cx - r, cy, cx + r, cy + 1, lineColor);
+        // Vertical (1 px wide, full diameter)
+        graphics.fill(cx, cy - r, cx + 1, cy + r, lineColor);
 
-        // Small center dot
-        graphics.fill(cx - 2, cy - 2, cx + 2, cy + 2, 0xFFFF0000);
+        // Small center dot (1x1)
+        graphics.fill(cx, cy, cx + 1, cy + 1, 0xFFFF0000);
 
         // Zoom level indicator (bottom of scope circle)
         String zoomLabel = ScopeState.zoomLevel == 1 ? "x2" : "x4";

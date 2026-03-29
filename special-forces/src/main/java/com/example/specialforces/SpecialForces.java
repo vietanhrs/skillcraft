@@ -1,12 +1,14 @@
 package com.example.specialforces;
 
 import com.example.specialforces.client.ClientSetup;
+import com.example.specialforces.init.SFEntityTypes;
 import com.example.specialforces.init.SFFeatures;
 import com.example.specialforces.init.SFItems;
 import com.example.specialforces.init.SFSounds;
 import com.example.specialforces.item.SniperRifle;
 import com.example.specialforces.network.SFNetwork;
 import net.minecraftforge.client.event.AddGuiOverlayLayersEvent;
+import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -23,6 +25,7 @@ public class SpecialForces {
         SFItems.ITEMS.register(bus);
         SFSounds.SOUNDS.register(bus);
         SFFeatures.FEATURES.register(bus);
+        SFEntityTypes.ENTITY_TYPES.register(bus);
         SFNetwork.register();
 
         // AddGuiOverlayLayersEvent is SelfDestructing: it fires once during init and
@@ -30,6 +33,8 @@ public class SpecialForces {
         // constructor — registering inside FMLClientSetupEvent is too late.
         // Lambda defers ClientSetup class loading until invocation (client only).
         AddGuiOverlayLayersEvent.getBus(bus).addListener(e -> ClientSetup.registerOverlays(e));
+
+        EntityRenderersEvent.RegisterRenderers.getBus(bus).addListener(e -> ClientSetup.registerRenderers(e));
 
         // Persistent-bus events (FOV, tick, input) are safe to register any time.
         FMLClientSetupEvent.getBus(bus).addListener(e -> ClientSetup.init());

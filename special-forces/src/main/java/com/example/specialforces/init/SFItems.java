@@ -2,6 +2,7 @@ package com.example.specialforces.init;
 
 import com.example.specialforces.SpecialForces;
 import com.example.specialforces.item.Bullet;
+import com.example.specialforces.item.GlowStick;
 import com.example.specialforces.item.NightGoggles;
 import com.example.specialforces.item.SniperRifle;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -26,6 +27,11 @@ public class SFItems {
     public static final RegistryObject<Item> BULLET = ITEMS.register("bullet",
             () -> new Bullet(new Item.Properties()
                     .setId(ITEMS.key("bullet"))
+                    .stacksTo(64)));
+
+    public static final RegistryObject<Item> GLOW_STICK = ITEMS.register("glow_stick",
+            () -> new GlowStick(new Item.Properties()
+                    .setId(ITEMS.key("glow_stick"))
                     .stacksTo(64)));
 
     public static final RegistryObject<Item> NIGHT_GOGGLES = ITEMS.register("night_goggles",
