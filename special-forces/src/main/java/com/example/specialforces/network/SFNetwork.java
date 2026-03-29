@@ -20,7 +20,7 @@ public class SFNetwork {
                 .add(SniperShootPacket.class, SniperShootPacket.STREAM_CODEC, SniperShootPacket::handle);
     }
 
-    public static void sendShoot() {
-        CHANNEL.send(new SniperShootPacket(), PacketDistributor.SERVER.noArg());
+    public static void sendShoot(int targetEntityId, int zoom) {
+        CHANNEL.send(new SniperShootPacket(targetEntityId, zoom), PacketDistributor.SERVER.noArg());
     }
 }
