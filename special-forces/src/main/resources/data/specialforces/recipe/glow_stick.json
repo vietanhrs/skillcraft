@@ -1,0 +1,12 @@
+{
+    "type": "minecraft:crafting_shapeless",
+    "ingredients": [
+        "minecraft:stick",
+        "minecraft:glowstone_dust",
+        "minecraft:slime_ball"
+    ],
+    "result": {
+        "id": "specialforces:glow_stick",
+        "count": 4
+    }
+}
