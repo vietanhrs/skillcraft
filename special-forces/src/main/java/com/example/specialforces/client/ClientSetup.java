@@ -5,7 +5,11 @@ import com.example.specialforces.item.SniperRifle;
 import com.example.specialforces.network.SFNetwork;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
@@ -55,9 +59,24 @@ public class ClientSetup {
         if (!(mc.player.getMainHandItem().getItem() instanceof SniperRifle)) return false;
 
         event.setSwingHand(false); // suppress vanilla swing animation
+        int zoomAtShot = ScopeState.zoomLevel; // capture zoom BEFORE resetting
         ScopeState.preShotZoom = ScopeState.zoomLevel; // save zoom to restore after cooldown
         ScopeState.zoomLevel = 0; // immediately reset view to normal when shot fires
-        SFNetwork.sendShoot();
+
+        // Client-side raycast: positions and rotations are perfectly in sync
+        // with what the player sees, eliminating server desync misses.
+        double range = 500.0;
+        Vec3 eyePos = mc.player.getEyePosition(1.0F);
+        Vec3 lookVec = mc.player.getViewVector(1.0F);
+        Vec3 endPos = eyePos.add(lookVec.scale(range));
+        AABB searchArea = mc.player.getBoundingBox()
+                .expandTowards(lookVec.scale(range)).inflate(1.0);
+        EntityHitResult hit = ProjectileUtil.getEntityHitResult(
+                mc.level, mc.player, eyePos, endPos, searchArea,
+                e -> !e.isSpectator() && e.isPickable(), 0.3F);
+        int targetId = hit != null ? hit.getEntity().getId() : -1;
+
+        SFNetwork.sendShoot(targetId, zoomAtShot);
         return true; // cancel vanilla melee attack
     }
 

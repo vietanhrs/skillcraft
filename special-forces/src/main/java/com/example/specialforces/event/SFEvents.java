@@ -6,19 +6,20 @@ import com.example.specialforces.item.SniperRifle;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
 
 public class SFEvents {
 
     private static final float NO_SCOPE_SPREAD = 0.20f;
     private static final float SCOPED_SPREAD = 0.005f;
     private static final float SNIPER_DAMAGE = 50.0f;
+    private static final double MAX_RANGE_SQ = 500.0 * 500.0;
 
-    /** Called from SniperShootPacket handler on the server thread. */
-    public static void handleSniperShot(ServerPlayer player) {
+    /**
+     * Called from SniperShootPacket handler on the server thread.
+     * The client performs the raycast and sends the hit entity ID and zoom level.
+     */
+    public static void handleSniperShot(ServerPlayer player, int targetEntityId, int zoom) {
         ItemStack stack = player.getMainHandItem();
         if (!(stack.getItem() instanceof SniperRifle)) return;
         if (player.getCooldowns().isOnCooldown(stack)) return;
@@ -35,20 +36,17 @@ public class SFEvents {
         }
         if (!hasBullet) return;
 
-        int zoom = SniperRifle.getZoom(player);
-        double range = 500.0;
+        // Clamp zoom to valid range to prevent exploits
+        zoom = Math.max(0, Math.min(2, zoom));
 
-        HitResult hit = ProjectileUtil.getHitResultOnViewVector(
-                player,
-                e -> !e.isSpectator() && e.isPickable() && e != player,
-                range);
-
-        if (hit.getType() == HitResult.Type.ENTITY) {
-            Entity target = ((EntityHitResult) hit).getEntity();
-            // Apply spread as miss chance: ~20% no-scope, ~0.5% scoped
-            float spread = zoom == 0 ? NO_SCOPE_SPREAD : SCOPED_SPREAD;
-            if (player.getRandom().nextFloat() >= spread) {
-                target.hurt(player.damageSources().playerAttack(player), SNIPER_DAMAGE);
+        if (targetEntityId >= 0) {
+            Entity target = player.level().getEntity(targetEntityId);
+            if (target != null && target.isAlive()
+                    && target.distanceToSqr(player) <= MAX_RANGE_SQ) {
+                float spread = zoom == 0 ? NO_SCOPE_SPREAD : SCOPED_SPREAD;
+                if (player.getRandom().nextFloat() >= spread) {
+                    target.hurt(player.damageSources().playerAttack(player), SNIPER_DAMAGE);
+                }
             }
         }
 
