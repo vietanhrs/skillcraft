@@ -5,14 +5,14 @@
         "index": 0,
         "fallback": {
             "type": "minecraft:model",
-            "model": "specialforces:item/sniper"
+            "model": "specialforces:item/m4a1"
         },
         "entries": [
             {
                 "threshold": 1,
                 "model": {
                     "type": "minecraft:model",
-                    "model": "specialforces:item/sniper_reloading"
+                    "model": "specialforces:item/m4a1_reloading"
                 }
             }
         ]

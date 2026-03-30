@@ -1,11 +1,11 @@
 {
     "type": "minecraft:crafting_shapeless",
     "ingredients": [
-        "minecraft:copper_ingot",
+        "minecraft:iron_ingot",
         "minecraft:gunpowder"
     ],
     "result": {
-        "id": "specialforces:bullet",
-        "count": 4
+        "id": "specialforces:ar_bullet",
+        "count": 8
     }
 }

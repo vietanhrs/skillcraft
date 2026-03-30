@@ -15,4 +15,8 @@ public class SFSounds {
     public static final RegistryObject<SoundEvent> SNIPER_FIRE = SOUNDS.register("sniper_fire",
             () -> SoundEvent.createVariableRangeEvent(
                     Identifier.fromNamespaceAndPath(SpecialForces.MOD_ID, "sniper_fire")));
+
+    public static final RegistryObject<SoundEvent> AR_FIRE = SOUNDS.register("ar_fire",
+            () -> SoundEvent.createVariableRangeEvent(
+                    Identifier.fromNamespaceAndPath(SpecialForces.MOD_ID, "ar_fire")));
 }

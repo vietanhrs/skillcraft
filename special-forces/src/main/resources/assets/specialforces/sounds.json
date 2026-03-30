@@ -3,5 +3,11 @@
         "sounds": [
             "specialforces:sniper_fire"
         ]
+    },
+    "ar_fire": {
+        "sounds": [
+            "specialforces:sniper_fire"
+        ],
+        "subtitle": "subtitles.specialforces.ar_fire"
     }
 }
