@@ -1,6 +1,7 @@
 package com.example.specialforces.item;
 
 import com.example.specialforces.client.ScopeState;
+import com.example.specialforces.init.SFDataComponents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -14,6 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SniperRifle extends Item {
 
     public static final int COOLDOWN_TICKS = 40;
+    public static final int MAX_MAGAZINE = 5;
+    public static final int RELOAD_TIME = 60; // 3 seconds
     public static final Map<UUID, Integer> SERVER_ZOOM = new ConcurrentHashMap<>();
 
     public SniperRifle(Properties properties) {
@@ -25,10 +28,9 @@ public class SniperRifle extends Item {
         if (hand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
         ItemStack stack = player.getItemInHand(hand);
         if (player.getCooldowns().isOnCooldown(stack)) return InteractionResult.FAIL;
+        // Don't allow zoom while reloading
+        if (stack.getOrDefault(SFDataComponents.RELOAD_TICKS.get(), 0) > 0) return InteractionResult.FAIL;
         if (level.isClientSide()) {
-            // Use ScopeState.zoomLevel as the source of truth on client.
-            // SERVER_ZOOM is only reset by handleSniperShot (server-side), so it
-            // diverges after a shot and would compute the wrong next level here.
             int next = (ScopeState.zoomLevel + 1) % 3;
             ScopeState.zoomLevel = next;
         } else {

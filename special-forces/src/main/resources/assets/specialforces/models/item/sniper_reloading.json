@@ -1,0 +1,28 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "specialforces:item/sniper"
+  },
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [45, 90, 0],
+      "translation": [0, 5, 3],
+      "scale": [1, 1, 1]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [45, -90, 0],
+      "translation": [0, 5, 3],
+      "scale": [1, 1, 1]
+    },
+    "firstperson_righthand": {
+      "rotation": [45, 90, -45],
+      "translation": [2, 4, -7],
+      "scale": [1.5, 1.5, 1.5]
+    },
+    "firstperson_lefthand": {
+      "rotation": [45, -90, 45],
+      "translation": [-2, 4, -7],
+      "scale": [1.5, 1.5, 1.5]
+    }
+  }
+}

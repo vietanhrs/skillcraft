@@ -1,6 +1,10 @@
 {
     "item.specialforces.sniper": "Sniper Rifle",
-    "item.specialforces.bullet": "Bullet",
+    "item.specialforces.sniper_bullet": "Sniper Bullet",
+    "item.specialforces.m4a1": "M4A1 Assault Rifle",
+    "item.specialforces.ar_bullet": "AR Bullet",
     "item.specialforces.glow_stick": "Glow Stick",
-    "item.specialforces.night_goggles": "Night Vision Goggles"
+    "item.specialforces.night_goggles": "Night Vision Goggles",
+    "key.categories.specialforces": "Special Forces",
+    "key.specialforces.reload": "Reload"
 }

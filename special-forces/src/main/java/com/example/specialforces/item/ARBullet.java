@@ -2,9 +2,9 @@ package com.example.specialforces.item;
 
 import net.minecraft.world.item.Item;
 
-public class Bullet extends Item {
+public class ARBullet extends Item {
 
-    public Bullet(Properties properties) {
+    public ARBullet(Properties properties) {
         super(properties);
     }
 }

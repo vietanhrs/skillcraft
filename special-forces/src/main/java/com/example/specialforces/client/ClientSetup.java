@@ -1,9 +1,12 @@
 package com.example.specialforces.client;
 
+import com.example.specialforces.init.SFDataComponents;
 import com.example.specialforces.init.SFItems;
+import com.example.specialforces.item.M4A1Rifle;
 import com.example.specialforces.item.SniperRifle;
 import com.example.specialforces.network.SFNetwork;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
@@ -23,14 +26,17 @@ import net.minecraftforge.event.TickEvent;
 @OnlyIn(Dist.CLIENT)
 public class ClientSetup {
 
+    private static int arFireCooldown = 0;
+
     /** Called from AddGuiOverlayLayersEvent.getBus(bus) in the mod constructor (SelfDestructing). */
     public static void registerOverlays(AddGuiOverlayLayersEvent event) {
-        // Hide vanilla crosshair while scoped in
+        // Replace vanilla crosshair with CS-style crosshair
         event.getLayeredDraw().addConditionTo(
                 ForgeLayeredDraw.PRE_SLEEP_STACK,
                 ForgeLayeredDraw.CROSSHAIR,
-                () -> ScopeState.zoomLevel == 0);
+                () -> false); // always hide vanilla crosshair
 
+        CrosshairOverlay.register(event);
         ScopeOverlay.register(event);
         NvOverlay.register(event);
     }
@@ -48,36 +54,33 @@ public class ClientSetup {
         InputEvent.InteractionKeyMappingTriggered.BUS.addListener(ClientSetup::onInteractionKey);
     }
 
-    /**
-     * Returns true to cancel the event (suppress vanilla melee attack) when the player
-     * is holding a sniper rifle and presses the attack key.
-     */
     private static boolean onInteractionKey(InputEvent.InteractionKeyMappingTriggered event) {
         if (!event.isAttack() || event.getHand() != InteractionHand.MAIN_HAND) return false;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return false;
-        if (!(mc.player.getMainHandItem().getItem() instanceof SniperRifle)) return false;
+        ItemStack held = mc.player.getMainHandItem();
 
-        event.setSwingHand(false); // suppress vanilla swing animation
-        int zoomAtShot = ScopeState.zoomLevel; // capture zoom BEFORE resetting
-        ScopeState.preShotZoom = ScopeState.zoomLevel; // save zoom to restore after cooldown
-        ScopeState.zoomLevel = 0; // immediately reset view to normal when shot fires
+        if (held.getItem() instanceof SniperRifle) {
+            event.setSwingHand(false);
+            if (held.getOrDefault(SFDataComponents.RELOAD_TICKS.get(), 0) > 0) return true;
+            int ammo = held.getOrDefault(SFDataComponents.MAGAZINE_AMMO.get(), 0);
+            if (ammo <= 0) return true;
 
-        // Client-side raycast: positions and rotations are perfectly in sync
-        // with what the player sees, eliminating server desync misses.
-        double range = 500.0;
-        Vec3 eyePos = mc.player.getEyePosition(1.0F);
-        Vec3 lookVec = mc.player.getViewVector(1.0F);
-        Vec3 endPos = eyePos.add(lookVec.scale(range));
-        AABB searchArea = mc.player.getBoundingBox()
-                .expandTowards(lookVec.scale(range)).inflate(1.0);
-        EntityHitResult hit = ProjectileUtil.getEntityHitResult(
-                mc.level, mc.player, eyePos, endPos, searchArea,
-                e -> !e.isSpectator() && e.isPickable(), 0.3F);
-        int targetId = hit != null ? hit.getEntity().getId() : -1;
+            int zoomAtShot = ScopeState.zoomLevel;
+            ScopeState.preShotZoom = ScopeState.zoomLevel;
+            ScopeState.zoomLevel = 0;
 
-        SFNetwork.sendShoot(targetId, zoomAtShot);
-        return true; // cancel vanilla melee attack
+            int targetId = performClientRaycast(mc, 500.0);
+            SFNetwork.sendSniperShoot(targetId, zoomAtShot);
+            return true;
+        }
+
+        if (held.getItem() instanceof M4A1Rifle) {
+            event.setSwingHand(false);
+            return true; // suppress vanilla attack; auto-fire is handled in tick
+        }
+
+        return false;
     }
 
     private static void onComputeFov(ViewportEvent.ComputeFov event) {
@@ -89,22 +92,62 @@ public class ClientSetup {
         if (mc.player == null) return;
 
         ItemStack stack = mc.player.getMainHandItem();
-        boolean holdingSniper = stack.getItem() == SFItems.SNIPER.get();
+        boolean holdingSniper = stack.getItem() instanceof SniperRifle;
+        boolean holdingAR = stack.getItem() instanceof M4A1Rifle;
 
+        // --- Sniper cooldown / zoom restore ---
         boolean onCooldown = holdingSniper && mc.player.getCooldowns().isOnCooldown(stack);
-
-        // Detect cooldown expiry: was on cooldown last tick, now it's done
         if (ScopeState.wasOnCooldown && !onCooldown && holdingSniper) {
-            // Restore zoom to what it was before shooting
             ScopeState.zoomLevel = ScopeState.preShotZoom;
         }
-
         ScopeState.wasOnCooldown = onCooldown;
-
-        // If player switches away from sniper, clear zoom
         if (!holdingSniper && ScopeState.zoomLevel != 0) {
             ScopeState.zoomLevel = 0;
             ScopeState.preShotZoom = 0;
         }
+
+        // --- M4A1 auto-fire ---
+        if (arFireCooldown > 0) arFireCooldown--;
+
+        if (holdingAR && mc.options.keyAttack.isDown()
+                && arFireCooldown <= 0 && mc.screen == null) {
+            int reloadTicks = stack.getOrDefault(SFDataComponents.RELOAD_TICKS.get(), 0);
+            int ammo = stack.getOrDefault(SFDataComponents.MAGAZINE_AMMO.get(), 0);
+            if (reloadTicks <= 0 && ammo > 0) {
+                int targetId = performClientRaycast(mc, M4A1Rifle.MAX_RANGE);
+                SFNetwork.sendARShoot(targetId);
+                applyRecoil(mc.player);
+                arFireCooldown = M4A1Rifle.FIRE_RATE;
+            }
+        }
+
+        // --- Reload key ---
+        if (SFKeyBindings.RELOAD_KEY.consumeClick()) {
+            if (holdingSniper || holdingAR) {
+                SFNetwork.sendReload();
+            }
+        }
+    }
+
+    /** Perform a client-side raycast and return the hit entity ID, or -1 for miss. */
+    private static int performClientRaycast(Minecraft mc, double range) {
+        Vec3 eyePos = mc.player.getEyePosition(1.0F);
+        Vec3 lookVec = mc.player.getViewVector(1.0F);
+        Vec3 endPos = eyePos.add(lookVec.scale(range));
+        AABB searchArea = mc.player.getBoundingBox()
+                .expandTowards(lookVec.scale(range)).inflate(1.0);
+        EntityHitResult hit = ProjectileUtil.getEntityHitResult(
+                mc.level, mc.player, eyePos, endPos, searchArea,
+                e -> !e.isSpectator() && e.isPickable(), 0.3F);
+        return hit != null ? hit.getEntity().getId() : -1;
+    }
+
+    /** Apply camera recoil for the M4A1 — muzzle kicks upward (toward player). */
+    private static void applyRecoil(LocalPlayer player) {
+        // Negative xRot = look up = gun pushed back toward player
+        float verticalKick = -1.5f;
+        float horizontalKick = (player.getRandom().nextFloat() - 0.5f) * 0.4f;
+        player.setXRot(player.getXRot() + verticalKick);
+        player.setYRot(player.getYRot() + horizontalKick);
     }
 }

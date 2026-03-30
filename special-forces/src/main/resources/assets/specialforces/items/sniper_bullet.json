@@ -1,6 +1,6 @@
 {
     "model": {
         "type": "minecraft:model",
-        "model": "specialforces:item/bullet"
+        "model": "specialforces:item/sniper_bullet"
     }
 }
