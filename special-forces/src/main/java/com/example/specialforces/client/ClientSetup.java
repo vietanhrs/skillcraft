@@ -30,39 +30,34 @@ import net.minecraftforge.event.TickEvent;
 public class ClientSetup {
 
     private static int arFireCooldown = 0;
-    /** Recoil animation intensity (0.0 = none, 1.0 = full kick). Decays each frame. */
+    /** Visual gun-model kick intensity (0.0 = none, 1.0 = full). Decays each frame. */
     private static float recoilAmount = 0f;
-    /** Accumulated pitch recoil (degrees) from current spray — used to compensate hand drop. */
-    private static float accumulatedPitch = 0f;
-
     /**
-     * Called from AddGuiOverlayLayersEvent.getBus(bus) in the mod constructor
-     * (SelfDestructing).
+     * Camera-only pitch offset for vertical recoil (degrees, negative = look up).
+     * Applied via ComputeCameraAngles so it does NOT affect hand rendering.
+     * Decays slowly when not firing.
      */
+    private static float cameraRecoilPitch = 0f;
+
     public static void registerOverlays(AddGuiOverlayLayersEvent event) {
-        // Replace vanilla crosshair with CS-style crosshair
         event.getLayeredDraw().addConditionTo(
                 ForgeLayeredDraw.PRE_SLEEP_STACK,
                 ForgeLayeredDraw.CROSSHAIR,
-                () -> false); // always hide vanilla crosshair
+                () -> false);
 
         CrosshairOverlay.register(event);
         ScopeOverlay.register(event);
         NvOverlay.register(event);
     }
 
-    /**
-     * Called from EntityRenderersEvent.RegisterRenderers.getBus(bus) in the mod
-     * constructor.
-     */
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(com.example.specialforces.init.SFEntityTypes.GLOW_STICK.get(),
                 context -> new ThrownItemRenderer<>(context, 1.0F, true));
     }
 
-    /** Called from FMLClientSetupEvent for persistent-bus events. */
     public static void init() {
         ViewportEvent.ComputeFov.BUS.addListener(ClientSetup::onComputeFov);
+        ViewportEvent.ComputeCameraAngles.BUS.addListener(ClientSetup::onComputeCameraAngles);
         TickEvent.ClientTickEvent.Post.BUS.addListener(ClientSetup::onClientTick);
         InputEvent.InteractionKeyMappingTriggered.BUS.addListener(ClientSetup::onInteractionKey);
         RenderHandEvent.BUS.addListener(ClientSetup::onRenderHand);
@@ -95,7 +90,7 @@ public class ClientSetup {
 
         if (held.getItem() instanceof M4A1Rifle) {
             event.setSwingHand(false);
-            return true; // suppress vanilla attack; auto-fire is handled in tick
+            return true;
         }
 
         return false;
@@ -103,6 +98,13 @@ public class ClientSetup {
 
     private static void onComputeFov(ViewportEvent.ComputeFov event) {
         event.setFOV(event.getFOV() * ScopeState.FOV_MULTIPLIER[ScopeState.zoomLevel]);
+    }
+
+    /** Apply accumulated recoil pitch to the camera WITHOUT changing player.xRot. */
+    private static void onComputeCameraAngles(ViewportEvent.ComputeCameraAngles event) {
+        if (cameraRecoilPitch != 0f) {
+            event.setPitch(event.getPitch() + cameraRecoilPitch);
+        }
     }
 
     private static void onClientTick(TickEvent.ClientTickEvent.Post event) {
@@ -141,9 +143,10 @@ public class ClientSetup {
             }
         }
 
-        // Reset accumulated pitch compensation when not spraying
+        // Decay camera recoil when not firing
         if (!holdingAR || !mc.options.keyAttack.isDown()) {
-            accumulatedPitch = 0f;
+            cameraRecoilPitch *= 0.85f;
+            if (Math.abs(cameraRecoilPitch) < 0.1f) cameraRecoilPitch = 0f;
         }
 
         // --- Reload key ---
@@ -154,9 +157,6 @@ public class ClientSetup {
         }
     }
 
-    /**
-     * Perform a client-side raycast and return the hit entity ID, or -1 for miss.
-     */
     private static int performClientRaycast(Minecraft mc, double range) {
         Vec3 eyePos = mc.player.getEyePosition(1.0F);
         Vec3 lookVec = mc.player.getViewVector(1.0F);
@@ -169,41 +169,27 @@ public class ClientSetup {
         return hit != null ? hit.getEntity().getId() : -1;
     }
 
-    /** Apply recoil for the M4A1 — camera aim drift + visual gun kick. */
+    /** Apply recoil — visual gun kick + camera pitch offset (no xRot change). */
     private static void applyRecoil(LocalPlayer player) {
-        // Camera pitch: aim drifts upward
-        float pitchKick = 1.0f;
-        player.setXRot(player.getXRot() - pitchKick);
-        accumulatedPitch += pitchKick;
-        // Horizontal jitter
-        player.setYRot(player.getYRot() + (player.getRandom().nextFloat() - 0.5f) * 0.3f);
-        // Trigger visual gun-model recoil (muzzle kicks up + gun pushes back toward player)
+        // Accumulate camera pitch recoil (applied in ComputeCameraAngles, not xRot)
+        cameraRecoilPitch -= 1.0f;
+        // Horizontal jitter on actual yaw
+        float newYaw = player.getYRot() + (player.getRandom().nextFloat() - 0.5f) * 0.3f;
+        player.setYRot(newYaw);
+        player.yRotO = newYaw;
         recoilAmount = 1.0f;
     }
 
-    /**
-     * Push the gun model backward (toward the player) and tilt muzzle upward
-     * when recoil is active. Returns false (never cancels the event).
-     */
+    /** Visual gun kick: push backward + tilt muzzle up. */
     private static boolean onRenderHand(RenderHandEvent event) {
         if (event.getHand() != InteractionHand.MAIN_HAND) return false;
         if (!(event.getItemStack().getItem() instanceof M4A1Rifle)) return false;
-        if (recoilAmount <= 0.01f && accumulatedPitch <= 0f) return false;
+        if (recoilAmount <= 0.01f) return false;
 
         PoseStack ps = event.getPoseStack();
-
-        // Compensate for camera-pitch-induced hand drop:
-        // Minecraft's hand renderer shifts the gun down when looking up.
-        // Push the gun back up proportionally to accumulated pitch recoil.
-        if (accumulatedPitch > 0f) {
-            ps.translate(0.0, 0.006 * accumulatedPitch, 0.0);
-        }
-
-        // Per-shot kick: push gun backward toward player and tilt muzzle up
         ps.translate(0.0, 0.05 * recoilAmount, 0.15 * recoilAmount);
         ps.mulPose(Axis.XP.rotationDegrees(12.0f * recoilAmount));
 
-        // Decay visual recoil smoothly, snap to zero when small enough
         recoilAmount *= 0.5f;
         if (recoilAmount < 0.05f) recoilAmount = 0f;
 

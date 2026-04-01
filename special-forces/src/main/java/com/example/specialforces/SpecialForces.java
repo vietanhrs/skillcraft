@@ -51,9 +51,14 @@ public class SpecialForces {
         // Tick down reload timers on held guns
         TickEvent.PlayerTickEvent.Post.BUS.addListener(SFEvents::onPlayerTick);
 
-        // Clean up server-side zoom state to prevent memory leaks
-        PlayerEvent.PlayerLoggedOutEvent.BUS.addListener(e ->
-                SniperRifle.SERVER_ZOOM.remove(e.getEntity().getUUID()));
-        ServerStoppedEvent.BUS.addListener(e -> SniperRifle.SERVER_ZOOM.clear());
+        // Clean up server-side state to prevent memory leaks
+        PlayerEvent.PlayerLoggedOutEvent.BUS.addListener(e -> {
+                SniperRifle.SERVER_ZOOM.remove(e.getEntity().getUUID());
+                SFEvents.clearPlayerState(e.getEntity().getUUID());
+        });
+        ServerStoppedEvent.BUS.addListener(e -> {
+                SniperRifle.SERVER_ZOOM.clear();
+                SFEvents.clearAllState();
+        });
     }
 }

@@ -14,9 +14,15 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomModelData;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import net.minecraftforge.event.TickEvent;
 
 public class SFEvents {
+
+    /** Server-side fire rate limiter for M4A1 (tick when next shot is allowed). */
+    private static final Map<UUID, Long> AR_NEXT_FIRE_TICK = new ConcurrentHashMap<>();
 
     private static final float SNIPER_NO_SCOPE_SPREAD = 0.20f;
     private static final float SNIPER_SCOPED_SPREAD = 0.005f;
@@ -58,7 +64,10 @@ public class SFEvents {
     public static void handleARShot(ServerPlayer player, int targetEntityId) {
         ItemStack stack = player.getMainHandItem();
         if (!(stack.getItem() instanceof M4A1Rifle)) return;
-        if (player.getCooldowns().isOnCooldown(stack)) return;
+        // Use tick counter instead of vanilla cooldown to avoid equip bob animation
+        long gameTick = player.level().getGameTime();
+        long nextAllowed = AR_NEXT_FIRE_TICK.getOrDefault(player.getUUID(), 0L);
+        if (gameTick < nextAllowed) return;
         if (stack.getOrDefault(SFDataComponents.RELOAD_TICKS.get(), 0) > 0) return;
 
         int ammo = stack.getOrDefault(SFDataComponents.MAGAZINE_AMMO.get(), 0);
@@ -79,7 +88,7 @@ public class SFEvents {
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                 SFSounds.AR_FIRE.get(), SoundSource.PLAYERS, 0.8f, 1.0f);
 
-        player.getCooldowns().addCooldown(stack, M4A1Rifle.FIRE_RATE);
+        AR_NEXT_FIRE_TICK.put(player.getUUID(), gameTick + M4A1Rifle.FIRE_RATE);
     }
 
     /** Called from ReloadGunPacket handler on the server thread. */
@@ -143,5 +152,13 @@ public class SFEvents {
             }
         }
         return consumed;
+    }
+
+    public static void clearPlayerState(UUID uuid) {
+        AR_NEXT_FIRE_TICK.remove(uuid);
+    }
+
+    public static void clearAllState() {
+        AR_NEXT_FIRE_TICK.clear();
     }
 }

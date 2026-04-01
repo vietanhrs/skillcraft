@@ -1,6 +1,8 @@
 package com.example.specialforces.item;
 
 import net.minecraft.world.item.Item;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import java.util.function.Consumer;
 
 public class M4A1Rifle extends Item {
 
@@ -13,5 +15,10 @@ public class M4A1Rifle extends Item {
 
     public M4A1Rifle(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+        consumer.accept(com.example.specialforces.client.M4A1ClientExtension.INSTANCE);
     }
 }
