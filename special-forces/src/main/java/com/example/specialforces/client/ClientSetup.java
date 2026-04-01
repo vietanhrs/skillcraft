@@ -143,10 +143,13 @@ public class ClientSetup {
             }
         }
 
-        // Decay camera recoil when not firing
-        if (!holdingAR || !mc.options.keyAttack.isDown()) {
-            cameraRecoilPitch *= 0.85f;
-            if (Math.abs(cameraRecoilPitch) < 0.1f) cameraRecoilPitch = 0f;
+        // When player stops firing, bake the accumulated camera recoil into
+        // the actual player pitch so the aim stays where the recoil left it.
+        if ((!holdingAR || !mc.options.keyAttack.isDown()) && cameraRecoilPitch != 0f) {
+            float newPitch = mc.player.getXRot() + cameraRecoilPitch;
+            mc.player.setXRot(newPitch);
+            mc.player.xRotO = newPitch;
+            cameraRecoilPitch = 0f;
         }
 
         // --- Reload key ---
