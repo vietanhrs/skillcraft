@@ -5,6 +5,8 @@ import com.example.specialforces.init.SFItems;
 import com.example.specialforces.item.M4A1Rifle;
 import com.example.specialforces.item.SniperRifle;
 import com.example.specialforces.network.SFNetwork;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.InteractionHand;
@@ -18,6 +20,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraftforge.client.event.AddGuiOverlayLayersEvent;
 import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.gui.overlay.ForgeLayeredDraw;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.ViewportEvent;
@@ -27,44 +30,54 @@ import net.minecraftforge.event.TickEvent;
 public class ClientSetup {
 
     private static int arFireCooldown = 0;
+    /** Visual gun-model kick intensity (0.0 = none, 1.0 = full). Decays each frame. */
+    private static float recoilAmount = 0f;
+    /**
+     * Camera-only pitch offset for vertical recoil (degrees, negative = look up).
+     * Applied via ComputeCameraAngles so it does NOT affect hand rendering.
+     * Decays slowly when not firing.
+     */
+    private static float cameraRecoilPitch = 0f;
 
-    /** Called from AddGuiOverlayLayersEvent.getBus(bus) in the mod constructor (SelfDestructing). */
     public static void registerOverlays(AddGuiOverlayLayersEvent event) {
-        // Replace vanilla crosshair with CS-style crosshair
         event.getLayeredDraw().addConditionTo(
                 ForgeLayeredDraw.PRE_SLEEP_STACK,
                 ForgeLayeredDraw.CROSSHAIR,
-                () -> false); // always hide vanilla crosshair
+                () -> false);
 
         CrosshairOverlay.register(event);
         ScopeOverlay.register(event);
         NvOverlay.register(event);
     }
 
-    /** Called from EntityRenderersEvent.RegisterRenderers.getBus(bus) in the mod constructor. */
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(com.example.specialforces.init.SFEntityTypes.GLOW_STICK.get(),
                 context -> new ThrownItemRenderer<>(context, 1.0F, true));
     }
 
-    /** Called from FMLClientSetupEvent for persistent-bus events. */
     public static void init() {
         ViewportEvent.ComputeFov.BUS.addListener(ClientSetup::onComputeFov);
+        ViewportEvent.ComputeCameraAngles.BUS.addListener(ClientSetup::onComputeCameraAngles);
         TickEvent.ClientTickEvent.Post.BUS.addListener(ClientSetup::onClientTick);
         InputEvent.InteractionKeyMappingTriggered.BUS.addListener(ClientSetup::onInteractionKey);
+        RenderHandEvent.BUS.addListener(ClientSetup::onRenderHand);
     }
 
     private static boolean onInteractionKey(InputEvent.InteractionKeyMappingTriggered event) {
-        if (!event.isAttack() || event.getHand() != InteractionHand.MAIN_HAND) return false;
+        if (!event.isAttack() || event.getHand() != InteractionHand.MAIN_HAND)
+            return false;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null) return false;
+        if (mc.player == null)
+            return false;
         ItemStack held = mc.player.getMainHandItem();
 
         if (held.getItem() instanceof SniperRifle) {
             event.setSwingHand(false);
-            if (held.getOrDefault(SFDataComponents.RELOAD_TICKS.get(), 0) > 0) return true;
+            if (held.getOrDefault(SFDataComponents.RELOAD_TICKS.get(), 0) > 0)
+                return true;
             int ammo = held.getOrDefault(SFDataComponents.MAGAZINE_AMMO.get(), 0);
-            if (ammo <= 0) return true;
+            if (ammo <= 0)
+                return true;
 
             int zoomAtShot = ScopeState.zoomLevel;
             ScopeState.preShotZoom = ScopeState.zoomLevel;
@@ -77,7 +90,7 @@ public class ClientSetup {
 
         if (held.getItem() instanceof M4A1Rifle) {
             event.setSwingHand(false);
-            return true; // suppress vanilla attack; auto-fire is handled in tick
+            return true;
         }
 
         return false;
@@ -87,9 +100,17 @@ public class ClientSetup {
         event.setFOV(event.getFOV() * ScopeState.FOV_MULTIPLIER[ScopeState.zoomLevel]);
     }
 
+    /** Apply accumulated recoil pitch to the camera WITHOUT changing player.xRot. */
+    private static void onComputeCameraAngles(ViewportEvent.ComputeCameraAngles event) {
+        if (cameraRecoilPitch != 0f) {
+            event.setPitch(event.getPitch() + cameraRecoilPitch);
+        }
+    }
+
     private static void onClientTick(TickEvent.ClientTickEvent.Post event) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null) return;
+        if (mc.player == null)
+            return;
 
         ItemStack stack = mc.player.getMainHandItem();
         boolean holdingSniper = stack.getItem() instanceof SniperRifle;
@@ -107,7 +128,8 @@ public class ClientSetup {
         }
 
         // --- M4A1 auto-fire ---
-        if (arFireCooldown > 0) arFireCooldown--;
+        if (arFireCooldown > 0)
+            arFireCooldown--;
 
         if (holdingAR && mc.options.keyAttack.isDown()
                 && arFireCooldown <= 0 && mc.screen == null) {
@@ -121,6 +143,15 @@ public class ClientSetup {
             }
         }
 
+        // When player stops firing, bake the accumulated camera recoil into
+        // the actual player pitch so the aim stays where the recoil left it.
+        if ((!holdingAR || !mc.options.keyAttack.isDown()) && cameraRecoilPitch != 0f) {
+            float newPitch = mc.player.getXRot() + cameraRecoilPitch;
+            mc.player.setXRot(newPitch);
+            mc.player.xRotO = newPitch;
+            cameraRecoilPitch = 0f;
+        }
+
         // --- Reload key ---
         if (SFKeyBindings.RELOAD_KEY.consumeClick()) {
             if (holdingSniper || holdingAR) {
@@ -129,7 +160,6 @@ public class ClientSetup {
         }
     }
 
-    /** Perform a client-side raycast and return the hit entity ID, or -1 for miss. */
     private static int performClientRaycast(Minecraft mc, double range) {
         Vec3 eyePos = mc.player.getEyePosition(1.0F);
         Vec3 lookVec = mc.player.getViewVector(1.0F);
@@ -142,12 +172,30 @@ public class ClientSetup {
         return hit != null ? hit.getEntity().getId() : -1;
     }
 
-    /** Apply camera recoil for the M4A1 — muzzle kicks upward (toward player). */
+    /** Apply recoil — visual gun kick + camera pitch offset (no xRot change). */
     private static void applyRecoil(LocalPlayer player) {
-        // Negative xRot = look up = gun pushed back toward player
-        float verticalKick = -1.5f;
-        float horizontalKick = (player.getRandom().nextFloat() - 0.5f) * 0.4f;
-        player.setXRot(player.getXRot() + verticalKick);
-        player.setYRot(player.getYRot() + horizontalKick);
+        // Accumulate camera pitch recoil (applied in ComputeCameraAngles, not xRot)
+        cameraRecoilPitch -= 1.0f;
+        // Horizontal jitter on actual yaw
+        float newYaw = player.getYRot() + (player.getRandom().nextFloat() - 0.5f) * 0.3f;
+        player.setYRot(newYaw);
+        player.yRotO = newYaw;
+        recoilAmount = 1.0f;
+    }
+
+    /** Visual gun kick: push backward + tilt muzzle up. */
+    private static boolean onRenderHand(RenderHandEvent event) {
+        if (event.getHand() != InteractionHand.MAIN_HAND) return false;
+        if (!(event.getItemStack().getItem() instanceof M4A1Rifle)) return false;
+        if (recoilAmount <= 0.01f) return false;
+
+        PoseStack ps = event.getPoseStack();
+        ps.translate(0.0, 0.05 * recoilAmount, 0.15 * recoilAmount);
+        ps.mulPose(Axis.XP.rotationDegrees(12.0f * recoilAmount));
+
+        recoilAmount *= 0.5f;
+        if (recoilAmount < 0.05f) recoilAmount = 0f;
+
+        return false;
     }
 }
