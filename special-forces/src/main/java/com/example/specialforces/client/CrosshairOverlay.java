@@ -2,7 +2,7 @@ package com.example.specialforces.client;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.resources.Identifier;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -28,11 +28,11 @@ public class CrosshairOverlay {
                 CrosshairOverlay::render);
     }
 
-    private static void render(GuiGraphics graphics, DeltaTracker delta) {
+    private static void render(GuiGraphicsExtractor graphics, DeltaTracker delta) {
         if (ScopeState.zoomLevel != 0) return; // scope overlay handles its own crosshair
 
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || mc.player == null) return;
+        if (mc.gui.hud.isHidden() || mc.player == null) return;
 
         int cx = graphics.guiWidth() / 2;
         int cy = graphics.guiHeight() / 2;

@@ -4,7 +4,7 @@ import com.example.specialforces.init.SFItems;
 import com.example.specialforces.item.SniperRifle;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.resources.Identifier;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -19,9 +19,9 @@ public class ScopeOverlay {
                 ScopeOverlay::render);
     }
 
-    private static void render(GuiGraphics graphics, DeltaTracker delta) {
+    private static void render(GuiGraphicsExtractor graphics, DeltaTracker delta) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.options.hideGui) return;
+        if (mc.player == null || mc.gui.hud.isHidden()) return;
         if (!(mc.player.getMainHandItem().getItem() instanceof SniperRifle)) return;
         if (ScopeState.zoomLevel == 0) return;
 
@@ -69,7 +69,7 @@ public class ScopeOverlay {
 
         // Zoom level indicator (bottom of scope circle)
         String zoomLabel = ScopeState.zoomLevel == 1 ? "x2" : "x4";
-        graphics.drawString(mc.font, zoomLabel, cx - mc.font.width(zoomLabel) / 2,
+        graphics.text(mc.font, zoomLabel, cx - mc.font.width(zoomLabel) / 2,
                 cy + r - mc.font.lineHeight - 4, 0xFFCCCCCC, true);
     }
 }

@@ -1,6 +1,6 @@
 # Skillcraft
 
-A monorepo of Minecraft Forge mods for **1.21.11 / Forge 61.x**.
+A monorepo of Minecraft Forge mods for **26.2 / Forge 65.x**.
 
 ## Mods
 
@@ -122,7 +122,7 @@ A chest is placed at **(8, surface, 8)** near spawn when a new world is created,
 
 ## Setup notes (applies to all mods)
 
-- **Java:** JDK 21 required (`org.gradle.java.home` set in each `gradle.properties`)
-- **Gradle:** 8.8 via wrapper — do not use system Gradle 9.x (ForgeGradle 6 incompatible)
-- **reobfJar:** disabled in all mods — Forge 61.x ships official Mojang names at runtime, SRG re-obfuscation causes `NoSuchFieldError`
+- **Java:** JDK 25 required (`org.gradle.java.home` set in each `gradle.properties`)
+- **Gradle:** 9.3.1 via wrapper with ForgeGradle 7
+- **reobfJar:** disabled in all mods — Forge 65.x ships official Mojang names at runtime, SRG re-obfuscation causes `NoSuchFieldError`
 - **IPv4:** `Djava.net.preferIPv4Stack=true` set to avoid Forge Maven 520 errors from broken IPv6

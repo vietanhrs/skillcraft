@@ -6,7 +6,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.npc.villager.VillagerData;
@@ -283,11 +283,11 @@ public class IronFarmBuilder {
         // Beds at z=-1 (head) and z=0 (foot), facing south
         for (int x = -1; x <= 1; x++) {
             setBlock(level, origin.offset(x, 6, -1),
-                    Blocks.RED_BED.defaultBlockState()
+                    Blocks.BED.red().defaultBlockState()
                             .setValue(BedBlock.FACING, Direction.SOUTH)
                             .setValue(BlockStateProperties.BED_PART, BedPart.HEAD));
             setBlock(level, origin.offset(x, 6, 0),
-                    Blocks.RED_BED.defaultBlockState()
+                    Blocks.BED.red().defaultBlockState()
                             .setValue(BedBlock.FACING, Direction.SOUTH)
                             .setValue(BlockStateProperties.BED_PART, BedPart.FOOT));
         }
@@ -352,7 +352,7 @@ public class IronFarmBuilder {
 
         // Three villagers in the pod (y=6 = standing on floor at y=5)
         for (int x = -1; x <= 1; x++) {
-            Villager v = EntityType.VILLAGER.create(sla.getLevel(), EntitySpawnReason.COMMAND);
+            Villager v = EntityTypes.VILLAGER.create(sla.getLevel(), EntitySpawnReason.COMMAND);
             if (v == null) continue;
             v.setPos(origin.getX() + x + 0.5, origin.getY() + 6, origin.getZ() + 0.5);
             v.setPersistenceRequired();
@@ -361,7 +361,7 @@ public class IronFarmBuilder {
         }
 
         // Zombie in cage (y=6 = standing on floor at y=5)
-        Zombie zombie = EntityType.ZOMBIE.create(sla.getLevel(), EntitySpawnReason.COMMAND);
+        Zombie zombie = EntityTypes.ZOMBIE.create(sla.getLevel(), EntitySpawnReason.COMMAND);
         if (zombie != null) {
             zombie.setPos(origin.getX() + 0.5, origin.getY() + 6, origin.getZ() + 4.5);
             zombie.setPersistenceRequired();

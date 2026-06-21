@@ -54,7 +54,7 @@ public class SecretShopFeature extends Feature<NoneFeatureConfiguration> {
     protected void buildShop(WorldGenLevel level, RandomSource random, BlockPos origin) {
         BlockState planks = Blocks.OAK_PLANKS.defaultBlockState();
         BlockState fence = Blocks.OAK_FENCE.defaultBlockState();
-        BlockState wool = Blocks.WHITE_WOOL.defaultBlockState();
+        BlockState wool = Blocks.WOOL.white().defaultBlockState();
 
         // ---- FLOOR (5×5) ----
         for (int x = -2; x <= 2; x++) {

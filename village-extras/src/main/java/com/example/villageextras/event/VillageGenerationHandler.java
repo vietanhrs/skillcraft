@@ -28,7 +28,7 @@ public class VillageGenerationHandler {
 
     /**
      * Thread-safe queue of new-chunk positions to inspect on the next server
-     * tick. ChunkEvent.Load may fire from chunk worker threads in Forge 61, so
+     * tick. ChunkEvent.Load may fire from chunk worker threads in Forge 65, so
      * we only collect positions here and do all heavy work on the server thread.
      */
     private static final ConcurrentLinkedQueue<ChunkPos> LOADED_CHUNKS = new ConcurrentLinkedQueue<>();
@@ -79,7 +79,7 @@ public class VillageGenerationHandler {
                     .getStructureWithPieceAt(center, VILLAGE_TAG);
             if (!start.isValid()) continue;
 
-            long key = start.getChunkPos().toLong();
+            long key = start.getChunkPos().pack();
             if (!data.isProcessed(key)) {
                 PENDING.add(key);
             }
@@ -99,7 +99,7 @@ public class VillageGenerationHandler {
                 it.remove();
                 continue;
             }
-            if (generateExtras(level, new ChunkPos(key))) {
+            if (generateExtras(level, ChunkPos.unpack(key))) {
                 data.markProcessed(key);
                 it.remove();
             }

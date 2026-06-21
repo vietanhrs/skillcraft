@@ -1,20 +1,9 @@
-buildscript {
-    repositories {
-        mavenCentral()
-        maven { url 'https://repo1.maven.org/maven2/' }
-        maven { url 'https://maven.minecraftforge.net/' }
-        gradlePluginPortal()
-    }
-    dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:6.0.47'
-    }
-}
-
 plugins {
+    id 'java'
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'net.minecraftforge.gradle' version '[7.0.17,8)'
 }
 
 version = '1.0.0'
@@ -24,64 +13,54 @@ base {
     archivesName = 'enchantmentshrine'
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
+
+sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 minecraft {
-    mappings channel: 'official', version: '1.21.11'
-
-    copyIdeResources = true
-
     runs {
         configureEach {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
+            workingDir = layout.projectDirectory.dir('run')
 
-            mods {
-                enchantmentshrine {
-                    source sourceSets.main
-                }
-            }
+            systemProperty 'eventbus.api.strictRuntimeChecks', 'true'
+            systemProperty 'forge.enabledGameTestNamespaces', 'enchantmentshrine'
         }
 
-        client {
-            property 'forge.enabledGameTestNamespaces', 'enchantmentshrine'
-        }
+        register('client')
 
-        server {
-            property 'forge.enabledGameTestNamespaces', 'enchantmentshrine'
+        register('server') {
             args '--nogui'
         }
 
-        data {
-            workingDirectory project.file('run-data')
+        register('data') {
+            workingDir = layout.projectDirectory.dir('run-data')
+
             args '--mod', 'enchantmentshrine', '--all',
-                 '--output', file('src/generated/resources/'),
-                 '--existing', file('src/main/resources/')
+                    '--output', layout.projectDirectory.dir('src/generated/resources'),
+                    '--existing', layout.projectDirectory.dir('src/main/resources')
         }
     }
 }
 
-sourceSets.main.resources { srcDir 'src/generated/resources' }
-
 repositories {
+    minecraft.mavenizer(it)
+    maven fg.forgeMaven
+    maven fg.minecraftLibsMaven
     mavenCentral()
-    maven { url 'https://repo1.maven.org/maven2/' }
-    maven { url 'https://libraries.minecraft.net/' }
-    maven { url 'https://maven.minecraftforge.net/' }
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.21.11-61.0.10'
+    implementation minecraft.dependency('net.minecraftforge:forge:26.2-65.0.0')
+    annotationProcessor 'net.minecraftforge:eventbus-validator:7.0.1'
 }
 
 tasks.named('processResources', ProcessResources).configure {
-    var replaceProperties = [
-        minecraft_version      : '1.21.11',
-        minecraft_version_range: '[1.21.11,1.22)',
-        forge_version          : '61.0.10',
-        forge_version_range    : '[61,)',
-        loader_version_range   : '[61,)',
+    def replaceProperties = [
+        minecraft_version      : '26.2',
+        minecraft_version_range: '[26.2,26.3)',
+        forge_version          : '65.0.0',
+        forge_version_range    : '[65,)',
+        loader_version_range   : '[65,)',
         mod_id                 : 'enchantmentshrine',
         mod_name               : 'Enchantment Shrine',
         mod_license            : 'MIT',
@@ -93,37 +72,6 @@ tasks.named('processResources', ProcessResources).configure {
 
     filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
         expand replaceProperties
-    }
-}
-
-
-// ---- Forge 61.x dev-run classpath fix ----
-// ClasspathLocator (fmlloader 61.x) discovers mods by finding META-INF/mods.toml
-// on the classloader.  It creates a ModFile scoped to ONLY the directory that
-// contains the mods.toml (build/resources/main).  The javafml language provider
-// then scans that ModFile for @Mod annotations — but all .class files live in
-// build/classes/java/main, so 0 mods are found and the game crashes.
-//
-// Fix: before any run task starts, copy the compiled classes into the resources
-// directory so that Forge finds both mods.toml and the @Mod class in the same
-// classpath entry.  The jar task is unaffected because this copy runs only
-// during the execution phase of run tasks, not during the build task.
-tasks.configureEach {
-    if (name.startsWith('run')) {
-        dependsOn 'compileJava', 'processResources'
-        doFirst {
-            def resourcesDir = sourceSets.main.output.resourcesDir
-            sourceSets.main.output.classesDirs.each { classesDir ->
-                // Merge classes into the resources classpath entry so Forge's
-                // ClasspathLocator finds @Mod in the same SecureJar as mods.toml.
-                copy { from classesDir; into resourcesDir }
-                // Wipe .class files from their original directory so the Java
-                // module system doesn't treat build/classes/java/main as a
-                // separate automatic module ('main') that conflicts with the
-                // 'enchantmentshrine' module in build/resources/main.
-                delete fileTree(classesDir).matching { include '**/*.class' }
-            }
-        }
     }
 }
 

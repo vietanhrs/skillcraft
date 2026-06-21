@@ -2,7 +2,7 @@ package com.example.skillcraft.mana;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.resources.Identifier;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -29,12 +29,12 @@ public class ManaHud {
                 ManaHud::render);
     }
 
-    private static void render(GuiGraphics graphics, DeltaTracker delta) {
+    private static void render(GuiGraphicsExtractor graphics, DeltaTracker delta) {
         if (!ClientManaData.hasMana)
             return;
 
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.options.hideGui)
+        if (mc.player == null || mc.gui.hud.isHidden())
             return;
 
         int screenH = mc.getWindow().getGuiScaledHeight();
@@ -54,6 +54,6 @@ public class ManaHud {
 
         // Label
         String label = "Mana: " + ClientManaData.mana + " / " + ClientManaData.maxMana;
-        graphics.drawString(mc.font, label, x, textY, 0xFF99AAFF, true);
+        graphics.text(mc.font, label, x, textY, 0xFF99AAFF, true);
     }
 }

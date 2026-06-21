@@ -9,7 +9,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -74,21 +74,21 @@ public class LightningBook extends Item {
         }
 
         if (!ManaHelper.hasManaBar(player)) {
-            player.displayClientMessage(
-                    Component.translatable("item.skillcraft.lightning_book.no_mana"), true);
+            player.sendOverlayMessage(
+                    Component.translatable("item.skillcraft.lightning_book.no_mana"));
             return InteractionResult.FAIL;
         }
 
         if (ManaHelper.getMana(player) < ManaHelper.LIGHTNING_COST) {
-            player.displayClientMessage(
-                    Component.translatable("item.skillcraft.lightning_book.not_enough_mana"), true);
+            player.sendOverlayMessage(
+                    Component.translatable("item.skillcraft.lightning_book.not_enough_mana"));
             return InteractionResult.FAIL;
         }
 
         Entity target = findTarget(level, player);
         if (target == null) {
-            player.displayClientMessage(
-                    Component.translatable("item.skillcraft.lightning_book.no_target"), true);
+            player.sendOverlayMessage(
+                    Component.translatable("item.skillcraft.lightning_book.no_target"));
             return InteractionResult.FAIL;
         }
 
@@ -100,7 +100,7 @@ public class LightningBook extends Item {
 
         int strikes = 1 << (getLevel(player.getItemInHand(hand)) - 1); // 1, 2, or 4
         for (int i = 0; i < strikes; i++) {
-            LightningBolt bolt = new LightningBolt(EntityType.LIGHTNING_BOLT, level);
+            LightningBolt bolt = new LightningBolt(EntityTypes.LIGHTNING_BOLT, level);
             bolt.setPos(target.getX(), target.getY(), target.getZ());
             level.addFreshEntity(bolt);
         }
