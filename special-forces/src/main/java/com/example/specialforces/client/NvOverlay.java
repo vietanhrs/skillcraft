@@ -3,7 +3,7 @@ package com.example.specialforces.client;
 import com.example.specialforces.init.SFItems;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraftforge.api.distmarker.Dist;
@@ -19,9 +19,9 @@ public class NvOverlay {
                 NvOverlay::render);
     }
 
-    private static void render(GuiGraphics graphics, DeltaTracker delta) {
+    private static void render(GuiGraphicsExtractor graphics, DeltaTracker delta) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.options.hideGui) return;
+        if (mc.player == null || mc.gui.hud.isHidden()) return;
 
         // Only render when wearing the goggles
         if (mc.player.getItemBySlot(EquipmentSlot.HEAD).getItem() != SFItems.NIGHT_GOGGLES.get()) return;

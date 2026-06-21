@@ -34,16 +34,13 @@ public class SpecialForces {
         SFEntityTypes.ENTITY_TYPES.register(bus);
         SFNetwork.register();
 
-        // AddGuiOverlayLayersEvent is SelfDestructing: it fires once during init and
-        // destroys its bus immediately after. Must register via getBus(bus) here in the
-        // constructor — registering inside FMLClientSetupEvent is too late.
         // Lambda defers ClientSetup class loading until invocation (client only).
-        AddGuiOverlayLayersEvent.getBus(bus).addListener(e -> ClientSetup.registerOverlays(e));
+        AddGuiOverlayLayersEvent.BUS.addListener(e -> ClientSetup.registerOverlays(e));
 
-        EntityRenderersEvent.RegisterRenderers.getBus(bus).addListener(e -> ClientSetup.registerRenderers(e));
+        EntityRenderersEvent.RegisterRenderers.BUS.addListener(e -> ClientSetup.registerRenderers(e));
 
         // Register reload key binding
-        RegisterKeyMappingsEvent.getBus(bus).addListener(e -> e.register(SFKeyBindings.RELOAD_KEY));
+        RegisterKeyMappingsEvent.BUS.addListener(e -> e.register(SFKeyBindings.RELOAD_KEY));
 
         // Persistent-bus events (FOV, tick, input) are safe to register any time.
         FMLClientSetupEvent.getBus(bus).addListener(e -> ClientSetup.init());

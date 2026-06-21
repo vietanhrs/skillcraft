@@ -1,6 +1,7 @@
 package com.example.villageextras.data;
 
 import com.mojang.serialization.Codec;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
@@ -29,7 +30,7 @@ public class VillageExtrasSavedData extends SavedData {
             );
 
     public static final SavedDataType<VillageExtrasSavedData> TYPE = new SavedDataType<>(
-            DATA_NAME,
+            Identifier.fromNamespaceAndPath("villageextras", DATA_NAME),
             VillageExtrasSavedData::new,
             CODEC,
             null

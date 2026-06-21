@@ -132,7 +132,7 @@ public class ClientSetup {
             arFireCooldown--;
 
         if (holdingAR && mc.options.keyAttack.isDown()
-                && arFireCooldown <= 0 && mc.screen == null) {
+                && arFireCooldown <= 0 && mc.gui.screen() == null) {
             int reloadTicks = stack.getOrDefault(SFDataComponents.RELOAD_TICKS.get(), 0);
             int ammo = stack.getOrDefault(SFDataComponents.MAGAZINE_AMMO.get(), 0);
             if (reloadTicks <= 0 && ammo > 0) {

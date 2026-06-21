@@ -1,20 +1,9 @@
-buildscript {
-    repositories {
-        mavenCentral()
-        maven { url 'https://repo1.maven.org/maven2/' }
-        maven { url 'https://maven.minecraftforge.net/' }
-        gradlePluginPortal()
-    }
-    dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:6.0.47'
-    }
-}
-
 plugins {
+    id 'java'
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'net.minecraftforge.gradle' version '[7.0.17,8)'
 }
 
 version = '1.0.0'
@@ -24,57 +13,46 @@ base {
     archivesName = 'special-forces'
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
+
+sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 minecraft {
-    mappings channel: 'official', version: '1.21.11'
-
-    copyIdeResources = true
-
     runs {
         configureEach {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
+            workingDir = layout.projectDirectory.dir('run')
 
-            mods {
-                specialforces {
-                    source sourceSets.main
-                }
-            }
+            systemProperty 'eventbus.api.strictRuntimeChecks', 'true'
+            systemProperty 'forge.enabledGameTestNamespaces', 'specialforces'
         }
 
-        client {
-            property 'forge.enabledGameTestNamespaces', 'specialforces'
-        }
+        register('client')
 
-        server {
-            property 'forge.enabledGameTestNamespaces', 'specialforces'
+        register('server') {
             args '--nogui'
         }
     }
 }
 
-sourceSets.main.resources { srcDir 'src/generated/resources' }
-
 repositories {
+    minecraft.mavenizer(it)
+    maven fg.forgeMaven
+    maven fg.minecraftLibsMaven
     mavenCentral()
-    maven { url 'https://repo1.maven.org/maven2/' }
-    maven { url 'https://libraries.minecraft.net/' }
-    maven { url 'https://maven.minecraftforge.net/' }
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.21.11-61.0.10'
+    implementation minecraft.dependency('net.minecraftforge:forge:26.2-65.0.0')
+    annotationProcessor 'net.minecraftforge:eventbus-validator:7.0.1'
 }
 
 tasks.named('processResources', ProcessResources).configure {
-    var replaceProperties = [
-        minecraft_version      : '1.21.11',
-        minecraft_version_range: '[1.21.11,1.22)',
-        forge_version          : '61.0.10',
-        forge_version_range    : '[61,)',
-        loader_version_range   : '[61,)',
+    def replaceProperties = [
+        minecraft_version      : '26.2',
+        minecraft_version_range: '[26.2,26.3)',
+        forge_version          : '65.0.0',
+        forge_version_range    : '[65,)',
+        loader_version_range   : '[65,)',
         mod_id                 : 'specialforces',
         mod_name               : 'Special Forces',
         mod_license            : 'MIT',
@@ -88,11 +66,6 @@ tasks.named('processResources', ProcessResources).configure {
         expand replaceProperties
     }
 }
-
-
-// Ensure classes and resources share one output dir so Forge finds @Mod classes
-// next to mods.toml during dev runs.
-sourceSets.main.output.resourcesDir = sourceSets.main.java.classesDirectory.get().asFile
 
 tasks.named('jar', Jar).configure {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE

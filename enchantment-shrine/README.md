@@ -1,6 +1,6 @@
 # Enchantment Shrine
 
-A Minecraft Forge mod for **1.21.11** that generates enchantment shrine structures across the overworld.
+A Minecraft Forge mod for **26.2** that generates enchantment shrine structures across the overworld.
 
 ## What it does
 
@@ -28,14 +28,14 @@ Shrines spawn in all overworld biomes at roughly village-level rarity (~1 per 32
 
 ## Requirements
 
-- Minecraft **1.21.11**
-- Forge **61.0.10**
-- Java **21**
+- Minecraft **26.2**
+- Forge **65.0.0**
+- Java **25**
 
 ## Building from source
 
 ```bash
-# Requires JDK 21 and Gradle 8.8
+# Requires JDK 25 and Gradle 9.3.1
 ./gradlew build
 ```
 
@@ -43,9 +43,9 @@ Output jar: `build/libs/enchantmentshrine-1.0.0.jar`
 
 ## Installation
 
-1. Install [Forge 1.21.11](https://files.minecraftforge.net) on your client
+1. Install [Forge 26.2](https://files.minecraftforge.net) on your client
 2. Copy the jar to `.minecraft/mods/`
-3. Launch with the Forge 1.21.11 profile
+3. Launch with the Forge 26.2 profile
 4. Create a **new world** — shrines only generate in new chunks
 
 ## Customization
@@ -64,5 +64,5 @@ Edit `src/main/resources/data/enchantmentshrine/worldgen/placed_feature/enchantm
 
 ## Known notes
 
-- Forge 61.x ships with official Mojang field names at runtime — `reobfJar` is disabled intentionally to prevent SRG name mismatches
+- Forge 65.x ships with official Mojang field names at runtime — `reobfJar` is disabled intentionally to prevent SRG name mismatches
 - `/locate structure` does not work for features; just explore new chunks to find shrines

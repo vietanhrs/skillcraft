@@ -7,7 +7,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.npc.villager.VillagerData;
 import net.minecraft.world.entity.npc.villager.VillagerProfession;
@@ -254,7 +254,7 @@ public class TradingHallBuilder {
 
     private static void spawnVillager(ServerLevelAccessor sla, BlockPos pos,
             ResourceKey<VillagerProfession> professionKey) {
-        Villager villager = EntityType.VILLAGER.create(sla.getLevel(), EntitySpawnReason.COMMAND);
+        Villager villager = EntityTypes.VILLAGER.create(sla.getLevel(), EntitySpawnReason.COMMAND);
         if (villager == null)
             return;
 
