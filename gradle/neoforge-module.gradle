@@ -1,0 +1,165 @@
+version = sourceProject.version
+group = sourceProject.group
+
+base {
+    archivesName = "${archiveBaseName}-neoforge"
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
+
+def generatedJavaDir = layout.buildDirectory.dir('generated/neoforge/java')
+def generatedResourcesDir = layout.buildDirectory.dir('generated/neoforge/resources')
+
+tasks.register('generateNeoForgeJava', Sync) {
+    from sourceProject.file('src/main/java')
+    into generatedJavaDir
+    exclude neoforgeExcludedJava
+    filter { String line ->
+        line
+                .replace('import net.minecraftforge.event.TickEvent;', 'import net.neoforged.neoforge.client.event.ClientTickEvent;\nimport net.neoforged.neoforge.event.tick.PlayerTickEvent;\nimport net.neoforged.neoforge.event.tick.ServerTickEvent;')
+                .replace('net.minecraftforge.api.distmarker', 'net.neoforged.api.distmarker')
+                .replace('net.minecraftforge.common.ForgeConfigSpec', 'net.neoforged.neoforge.common.ModConfigSpec')
+                .replace('ForgeConfigSpec', 'ModConfigSpec')
+                .replace('net.minecraftforge.client.gui.overlay.ForgeLayeredDraw', 'net.neoforged.neoforge.client.gui.VanillaGuiLayers')
+                .replace('ForgeLayeredDraw.PRE_SLEEP_STACK', 'VanillaGuiLayers.SLEEP_OVERLAY')
+                .replace('ForgeLayeredDraw.CROSSHAIR', 'VanillaGuiLayers.CROSSHAIR')
+                .replace('AddGuiOverlayLayersEvent', 'RegisterGuiLayersEvent')
+                .replace('getLayeredDraw().addConditionTo', 'replaceLayer')
+                .replace('getLayeredDraw().add', 'registerAboveAll')
+                .replace('net.minecraftforge.client.event', 'net.neoforged.neoforge.client.event')
+                .replace('net.minecraftforge.client.extensions', 'net.neoforged.neoforge.client.extensions')
+                .replace('net.minecraftforge.event.TickEvent.PlayerTickEvent.Post', 'net.neoforged.neoforge.event.tick.PlayerTickEvent.Post')
+                .replace('TickEvent.PlayerTickEvent.Post', 'PlayerTickEvent.Post')
+                .replace('net.minecraftforge.event.TickEvent.ClientTickEvent.Post', 'net.neoforged.neoforge.client.event.ClientTickEvent.Post')
+                .replace('TickEvent.ClientTickEvent.Post', 'ClientTickEvent.Post')
+                .replace('net.minecraftforge.event.TickEvent.ServerTickEvent.Post', 'net.neoforged.neoforge.event.tick.ServerTickEvent.Post')
+                .replace('TickEvent.ServerTickEvent.Post', 'ServerTickEvent.Post')
+                .replace('net.minecraftforge.event', 'net.neoforged.neoforge.event')
+                .replace('net.minecraftforge.network', 'net.neoforged.neoforge.network')
+                .replace('net.minecraftforge.registries.ForgeRegistries', 'net.minecraft.core.registries.BuiltInRegistries')
+                .replace('net.minecraftforge.registries.RegistryObject', 'java.util.function.Supplier')
+                .replace('net.minecraftforge.registries', 'net.neoforged.neoforge.registries')
+                .replace('ForgeRegistries.ENTITY_TYPES', 'BuiltInRegistries.ENTITY_TYPE')
+                .replace('ForgeRegistries.ITEMS', 'BuiltInRegistries.ITEM')
+                .replace('ForgeRegistries.FEATURES', 'BuiltInRegistries.FEATURE')
+                .replace('ForgeRegistries.SOUND_EVENTS', 'BuiltInRegistries.SOUND_EVENT')
+                .replaceAll('RegistryObject<([^=;]+)>', 'Supplier<$1>')
+                .replace('() -> new ManaPotion', 'key -> new ManaPotion')
+                .replace('() -> new LightningBook', 'key -> new LightningBook')
+                .replace('() -> new SniperRifle', 'key -> new SniperRifle')
+                .replace('() -> new M4A1Rifle', 'key -> new M4A1Rifle')
+                .replace('() -> new SniperBullet', 'key -> new SniperBullet')
+                .replace('() -> new ARBullet', 'key -> new ARBullet')
+                .replace('() -> new GlowStick', 'key -> new GlowStick')
+                .replace('() -> new NightGoggles', 'key -> new NightGoggles')
+                .replaceAll('ITEMS\\.key\\("[^"]+"\\)', 'net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.ITEM, key)')
+                .replace('event.player()', 'event.getEntity()')
+                .replace('event.server().overworld()', 'net.neoforged.neoforge.server.ServerLifecycleHooks.getCurrentServer().overworld()')
+                .replace('event.setCost(newLevel * 5L);', 'event.setXpCost((int) (newLevel * 5L));')
+                .replace('net.minecraftforge.fml', 'net.neoforged.fml')
+    }
+}
+
+tasks.register('generateNeoForgeResources', Copy) {
+    from(sourceProject.file('src/main/resources')) {
+        exclude 'META-INF/mods.toml'
+        eachFile { details ->
+            details.path = details.path.replace('/forge/', '/neoforge/')
+        }
+    }
+    from 'src/main/resources'
+    into generatedResourcesDir
+    includeEmptyDirs = false
+}
+
+sourceSets {
+    main {
+        java.setSrcDirs([generatedJavaDir, 'src/main/java'])
+        resources.setSrcDirs([generatedResourcesDir])
+    }
+}
+
+neoForge {
+    version = neoforgeVersion
+
+    runs {
+        configureEach {
+            gameDirectory = file('run')
+            systemProperty 'eventbus.api.strictRuntimeChecks', 'true'
+        }
+
+        client {
+            client()
+        }
+
+        server {
+            server()
+            programArgument '--nogui'
+        }
+
+        data {
+            data()
+            gameDirectory = file('run-data')
+            programArguments.addAll '--mod', modId, '--all',
+                    '--output', file('src/generated/resources').absolutePath,
+                    '--existing', sourceProject.file('src/main/resources').absolutePath,
+                    '--existing', file('src/main/resources').absolutePath
+        }
+    }
+
+    mods {
+        "${modId}" {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+tasks.named('compileJava').configure {
+    dependsOn 'generateNeoForgeJava'
+}
+
+tasks.named('processResources', ProcessResources).configure {
+    dependsOn 'generateNeoForgeResources'
+
+    def replaceProperties = [
+            minecraft_version      : minecraftVersion,
+            minecraft_version_range: minecraftVersionRange,
+            neoforge_version       : neoforgeVersion,
+            neoforge_version_range : neoforgeVersionRange,
+            loader_version_range   : loaderVersionRange,
+            mod_id                 : modId,
+            mod_name               : modName,
+            mod_license            : modLicense,
+            mod_version            : version,
+            mod_authors            : modAuthors,
+            mod_description        : modDescription
+    ]
+    inputs.properties replaceProperties
+
+    filesMatching(['META-INF/neoforge.mods.toml', 'pack.mcmeta']) {
+        expand replaceProperties
+    }
+}
+
+tasks.named('jar', Jar).configure {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+        attributes([
+                'Specification-Title'     : modId,
+                'Specification-Vendor'    : modAuthors,
+                'Specification-Version'   : '1',
+                'Implementation-Title'    : project.name,
+                'Implementation-Version'  : project.jar.archiveVersion,
+                'Implementation-Vendor'   : modAuthors,
+                'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}

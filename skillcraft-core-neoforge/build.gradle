@@ -1,0 +1,27 @@
+plugins {
+    id 'java'
+    id 'net.neoforged.moddev' version '2.0.141'
+}
+
+ext {
+    sourceProject = project(':skillcraft-core')
+    archiveBaseName = 'skillcraft'
+    modId = 'skillcraft'
+    modName = 'Skillcraft'
+    modLicense = 'MIT'
+    modAuthors = 'vietanhrs'
+    modDescription = 'Adds Mana Castles, Secret Shop merchants, the Mana Potion, and the Lightning Book.'
+    minecraftVersion = '26.2'
+    minecraftVersionRange = '[26.2,26.3)'
+    neoforgeVersion = '26.2.0.6-beta'
+    neoforgeVersionRange = '[26.2.0.6-beta,)'
+    loaderVersionRange = '[1,)'
+    neoforgeExcludedJava = [
+            'com/example/skillcraft/Skillcraft.java',
+            'com/example/skillcraft/client/ClientSetup.java',
+            'com/example/skillcraft/mana/ManaNetwork.java',
+            'com/example/skillcraft/mana/ManaPacket.java'
+    ]
+}
+
+apply from: rootProject.file('gradle/neoforge-module.gradle')

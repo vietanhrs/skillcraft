@@ -1,6 +1,6 @@
 # Skillcraft
 
-A monorepo of Minecraft Forge mods for **26.2 / Forge 65.x**.
+A monorepo of Minecraft mods for **26.2**, built for both **Forge 65.x** and **NeoForge 26.2.0.6-beta**.
 
 ## Mods
 
@@ -9,6 +9,7 @@ A monorepo of Minecraft Forge mods for **26.2 / Forge 65.x**.
 | [enchantment-shrine](enchantment-shrine/) | Generates enchantment shrines with max-power bookshelves and loot chests across the overworld |
 | [skillcraft-core](skillcraft-core/) | Adds Mana Castles, Secret Shop merchants, the Mana Potion, and the Lightning Book |
 | [special-forces](special-forces/) | Adds military weapons and gadgets: Sniper Rifle, Night Vision Goggles, and Bullets |
+| [village-extras](village-extras/) | Generates village companion structures such as trading halls and iron farms |
 
 ## Repo structure
 
@@ -18,27 +19,43 @@ skillcraft/
 ├── settings.gradle           ← multi-project Gradle setup
 ├── gradlew / gradlew.bat
 ├── gradle/wrapper/
-├── enchantment-shrine/       ← mod subproject
+├── enchantment-shrine/       ← Forge mod subproject
 │   ├── build.gradle
 │   └── src/
-├── skillcraft-core/          ← mod subproject
+├── enchantment-shrine-neoforge/ ← NeoForge build wrapper
+├── skillcraft-core/          ← Forge mod subproject
 │   ├── build.gradle
 │   └── src/
-└── special-forces/           ← mod subproject
-    ├── build.gradle
-    └── src/
+├── skillcraft-core-neoforge/ ← NeoForge build wrapper
+├── special-forces/           ← Forge mod subproject
+│   ├── build.gradle
+│   └── src/
+├── special-forces-neoforge/  ← NeoForge build wrapper
+├── village-extras/           ← Forge mod subproject
+└── village-extras-neoforge/  ← NeoForge build wrapper
 ```
 
 The repo is a **Gradle multi-project build**. You can build or run any mod from the root:
 
 ```bash
-# Build all mods
+# Build all Forge and NeoForge mods
 ./gradlew build
 
-# Build a specific mod
+# Build only one loader family
+./gradlew buildForge
+./gradlew buildNeoForge
+
+# Build a specific Forge mod
 ./gradlew :enchantment-shrine:build
 ./gradlew :skillcraft-core:build
 ./gradlew :special-forces:build
+./gradlew :village-extras:build
+
+# Build a specific NeoForge mod
+./gradlew :enchantment-shrine-neoforge:build
+./gradlew :skillcraft-core-neoforge:build
+./gradlew :special-forces-neoforge:build
+./gradlew :village-extras-neoforge:build
 
 # Launch dev client
 ./gradlew :skillcraft-core:runClient
@@ -124,5 +141,6 @@ A chest is placed at **(8, surface, 8)** near spawn when a new world is created,
 
 - **Java:** JDK 25 required (`org.gradle.java.home` set in each `gradle.properties`)
 - **Gradle:** 9.3.1 via wrapper with ForgeGradle 7
+- **NeoForge:** wrapper projects use ModDevGradle 2 and generate NeoForge-compatible Java/resources from the Forge source modules, with small loader-specific entrypoints and networking adapters.
 - **reobfJar:** disabled in all mods — Forge 65.x ships official Mojang names at runtime, SRG re-obfuscation causes `NoSuchFieldError`
 - **IPv4:** `Djava.net.preferIPv4Stack=true` set to avoid Forge Maven 520 errors from broken IPv6

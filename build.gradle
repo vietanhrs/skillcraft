@@ -1,2 +1,28 @@
+plugins {
+    id 'base'
+}
+
 // Root build file for the skillcraft monorepo.
 // Individual project builds are configured in their respective subdirectories.
+
+tasks.register('buildForge') {
+    group = 'build'
+    description = 'Builds all Forge mod jars.'
+    dependsOn ':enchantment-shrine:build',
+            ':skillcraft-core:build',
+            ':special-forces:build',
+            ':village-extras:build'
+}
+
+tasks.register('buildNeoForge') {
+    group = 'build'
+    description = 'Builds all NeoForge mod jars.'
+    dependsOn ':enchantment-shrine-neoforge:build',
+            ':skillcraft-core-neoforge:build',
+            ':special-forces-neoforge:build',
+            ':village-extras-neoforge:build'
+}
+
+tasks.named('build') {
+    dependsOn 'buildForge', 'buildNeoForge'
+}

@@ -1,0 +1,24 @@
+plugins {
+    id 'java'
+    id 'net.neoforged.moddev' version '2.0.141'
+}
+
+ext {
+    sourceProject = project(':village-extras')
+    archiveBaseName = 'villageextras'
+    modId = 'villageextras'
+    modName = 'Village Extras'
+    modLicense = 'MIT'
+    modAuthors = 'vietanhrs'
+    modDescription = 'Generates a trading hall and iron farm next to every village.'
+    minecraftVersion = '26.2'
+    minecraftVersionRange = '[26.2,26.3)'
+    neoforgeVersion = '26.2.0.6-beta'
+    neoforgeVersionRange = '[26.2.0.6-beta,)'
+    loaderVersionRange = '[1,)'
+    neoforgeExcludedJava = [
+            'com/example/villageextras/VillageExtras.java'
+    ]
+}
+
+apply from: rootProject.file('gradle/neoforge-module.gradle')
