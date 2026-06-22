@@ -1,0 +1,24 @@
+plugins {
+    id 'java'
+    id 'net.neoforged.moddev' version '2.0.141'
+}
+
+ext {
+    sourceProject = project(':enchantment-shrine')
+    archiveBaseName = 'enchantmentshrine'
+    modId = 'enchantmentshrine'
+    modName = 'Enchantment Shrine'
+    modLicense = 'MIT'
+    modAuthors = 'vietanhrs'
+    modDescription = 'Generates enchantment shrine structures in your world.'
+    minecraftVersion = '26.2'
+    minecraftVersionRange = '[26.2,26.3)'
+    neoforgeVersion = '26.2.0.6-beta'
+    neoforgeVersionRange = '[26.2.0.6-beta,)'
+    loaderVersionRange = '[1,)'
+    neoforgeExcludedJava = [
+            'com/example/enchantmentshrine/EnchantmentShrine.java'
+    ]
+}
+
+apply from: rootProject.file('gradle/neoforge-module.gradle')

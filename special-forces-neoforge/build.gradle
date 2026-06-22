@@ -1,0 +1,30 @@
+plugins {
+    id 'java'
+    id 'net.neoforged.moddev' version '2.0.141'
+}
+
+ext {
+    sourceProject = project(':special-forces')
+    archiveBaseName = 'special-forces'
+    modId = 'specialforces'
+    modName = 'Special Forces'
+    modLicense = 'MIT'
+    modAuthors = 'vietanhrs'
+    modDescription = 'Adds military weapons and gadgets: Sniper Rifle, Night Vision Goggles, and Bullets.'
+    minecraftVersion = '26.2'
+    minecraftVersionRange = '[26.2,26.3)'
+    neoforgeVersion = '26.2.0.6-beta'
+    neoforgeVersionRange = '[26.2.0.6-beta,)'
+    loaderVersionRange = '[1,)'
+    neoforgeExcludedJava = [
+            'com/example/specialforces/SpecialForces.java',
+            'com/example/specialforces/client/ClientSetup.java',
+            'com/example/specialforces/item/M4A1Rifle.java',
+            'com/example/specialforces/network/SFNetwork.java',
+            'com/example/specialforces/network/SniperShootPacket.java',
+            'com/example/specialforces/network/ARShootPacket.java',
+            'com/example/specialforces/network/ReloadGunPacket.java'
+    ]
+}
+
+apply from: rootProject.file('gradle/neoforge-module.gradle')
